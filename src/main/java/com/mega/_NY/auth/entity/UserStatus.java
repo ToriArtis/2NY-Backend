@@ -1,5 +1,6 @@
 package com.mega._NY.auth.entity;
 
+
 import lombok.Getter;
 
 public enum UserStatus {

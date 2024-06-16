@@ -28,7 +28,7 @@ public class User implements Principal {
     @Column(name = "REAL_NAME")
     private String realName;    // 사용자의 실제 이름
 
-    private String displayName; // 사용자 표시 이름 (닉네임)
+    private String nickName; // 사용자 표시 이름 (닉네임)
 
     private String address;     // 사용자 주소
 
@@ -55,12 +55,13 @@ public class User implements Principal {
     @Enumerated(value = EnumType.STRING)
     private UserStatus userStatus = UserStatus.USER_ACTIVE; // 기본값을 USER_ACTIVE로 설정합니다.
 
-    // 추후 추가 되는 사항들이기 때문에 코드 상에 반영은 하나 주석처리 함
-//    @Column(name = "PROVIDER_ID")
-//    private String providerId;  // OAuth 제공자에서의 사용자 ID
+    @Column(name = "PROVIDER_ID")
+    private String providerId;  // OAuth 제공자에서의 사용자 ID
 
-//    @Column(name = "OAUTH_ID")
-//    private String oAuthId;      // 인증 ID (내부 시스템에서 사용)
+    @Column(name = "OAUTH_ID")
+    private String oAuthId;      // 인증 ID (내부 시스템에서 사용)
+
+    // 추후 추가 되는 사항들이기 때문에 코드 상에 반영은 하나 주석처리 함
 
 //    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 //    private Cart cart;

@@ -33,6 +33,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	implementation 'jakarta.platform:jakarta.jakartaee-api:9.0.0'
 
 	// 모델 매핑 관련 의존성
 	implementation 'org.modelmapper:modelmapper:3.2.0'
