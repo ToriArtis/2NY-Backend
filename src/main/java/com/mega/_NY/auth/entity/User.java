@@ -1,5 +1,6 @@
 package com.mega._NY.auth.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,18 +9,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
-@NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
+@ToString
 @Table(name = "USERS")
 public class User implements Principal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;        // 사용자 고유 ID
+    private Long userId;
 
     private String email;       // 사용자 이메일 주소
 
@@ -31,6 +33,8 @@ public class User implements Principal {
     private String nickName; // 사용자 표시 이름 (닉네임)
 
     private String address;     // 사용자 주소
+
+    private String detailAddress;     // 사용자 주소
 
     @Column(unique = true)
     private String phone;       // 사용자 전화번호
@@ -59,7 +63,7 @@ public class User implements Principal {
     private String providerId;  // OAuth 제공자에서의 사용자 ID
 
     @Column(name = "OAUTH_ID")
-    private String oAuthId;      // 인증 ID (내부 시스템에서 사용)
+    private String oAuthId;   // 인증 ID (내부 시스템에서 사용)
 
     // 추후 추가 되는 사항들이기 때문에 코드 상에 반영은 하나 주석처리 함
 
