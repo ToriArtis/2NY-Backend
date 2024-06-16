@@ -32,6 +32,20 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+	// 모델 매핑 관련 의존성
+	implementation 'org.modelmapper:modelmapper:3.2.0'
+
+	// 스프링 시큐리티 관련 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// JSON 관련 의존성, JWT 관련
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5', 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
 }
 
 tasks.named('test') {
