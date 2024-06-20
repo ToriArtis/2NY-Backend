@@ -1,12 +1,12 @@
 package com.mega._NY.service;
 
-import com.mega._NY.auth.config.UserMapperConfig;
 import com.mega._NY.auth.dto.UserSignUpDTO;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.auth.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,21 +18,16 @@ public class AuthServiceTests {
     @Autowired
     private UserService userService;
     @Autowired
-    private UserMapperConfig mapper;
+    private ModelMapper modelMapper;
     @Autowired
     private UserRepository userRepository;
-    private User user;
+    private User user = User.builder()
+            .email("ok1@gmail.com")
+            .password("12344").address("집주소입니다.")
+            .nickName("닉네임").realName("채현영")
+            .phone("010-3434-3434").build();;
 
-    @BeforeEach
-    void init() {
-        userRepository.deleteAll();
-        UserSignUpDTO userSignUpDto = UserSignUpDTO.builder()
-                .email("test1@gmail.com")
-                .password("12344").address("집주소입니다.")
-                .nickName("닉네임").realName("채현영")
-                .phone("010-3434-3434").build();
-        user = mapper.userSignUpDtoToUser(userSignUpDto);
-    }
+
 
     @Test
     void 회원가입_테스트() throws Exception {
@@ -50,7 +45,7 @@ public class AuthServiceTests {
         //when
         UserSignUpDTO userSignUpDto = UserSignUpDTO.builder().email("test1@gmail.com").password("12344").address("집주소입니다.")
                 .nickName("닉네임").realName("채현영").phone("010-3434-3434").build();
-        User user1 = mapper.userSignUpDtoToUser(userSignUpDto);
+        User user1 = modelMapper.map(userSignUpDto, User.class);
         //then
         assertThrows(RuntimeException.class, () -> userService.joinUser(user1));
     }
@@ -62,7 +57,7 @@ public class AuthServiceTests {
         //when
         UserSignUpDTO userSignUpDto = UserSignUpDTO.builder().email("test2@gmail.com").password("12344")
                 .address("집주소입니다.").nickName("닉네임").realName("채현영").phone("010-3434-3434").build();
-        User user1 = mapper.userSignUpDtoToUser(userSignUpDto);
+        User user1 = modelMapper.map(userSignUpDto, User.class);
         //then
         assertThrows(RuntimeException.class, () -> userService.joinUser(user1));
     }
@@ -74,7 +69,7 @@ public class AuthServiceTests {
         //when
         UserSignUpDTO userSignUpDto = UserSignUpDTO.builder().email("test2@gmail.com").password("12344")
                 .address("집주소입니다.").nickName("닉네임").realName("채현영").phone("010-3434-3434").build();
-        User user1 = mapper.userSignUpDtoToUser(userSignUpDto);
+        User user1 = modelMapper.map(userSignUpDto, User.class);
         //then
         assertThrows(RuntimeException.class, () -> userService.joinUser(user1));
     }

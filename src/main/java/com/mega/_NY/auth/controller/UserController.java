@@ -1,6 +1,5 @@
 package com.mega._NY.auth.controller;
 
-import com.mega._NY.auth.config.UserMapperConfig;
 import com.mega._NY.auth.config.logout.Logout;
 import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.dto.UserSignUpDTO;
@@ -31,13 +30,14 @@ public class UserController {
 
     @Autowired
     private final Logout logout;
-    private UserMapperConfig mapper;
+    private final ModelMapper modelMapper;
     private final UserService userService;
 
 
     @PostMapping
     public ResponseEntity singUpUser( @Valid @RequestBody UserSignUpDTO userSignUpDto ){
-        User user = mapper.userSignUpDtoToUser(userSignUpDto);
+        User user = modelMapper.map(userSignUpDto, User.class);
+        log.info(user);
         userService.joinUser(user);
 
         return new ResponseEntity(HttpStatus.CREATED);
