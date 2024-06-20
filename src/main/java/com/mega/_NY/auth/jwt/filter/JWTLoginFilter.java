@@ -22,44 +22,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@Slf4j
 @Log4j2
 public class JWTLoginFilter  extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtToken jwtToken;
 
 
     @Override
     @SneakyThrows
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response ) throws AuthenticationException {
+    public Authentication attemptAuthentication( HttpServletRequest request, HttpServletResponse response ) throws AuthenticationException{
         ObjectMapper objectMapper = new ObjectMapper();
         LoginDTO loginDto = objectMapper.readValue(request.getInputStream(), LoginDTO.class);
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
-        log.info("authentication = {}", authenticationToken);
 
         return authenticationManager.authenticate(authenticationToken);
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult ) throws IOException, ServletException {
-        log.info("로그인 성공");
-        PrincipalDetails principal = (PrincipalDetails) authResult.getPrincipal();
-        User user = principal.getUser();
-//                log.warn("닉네임 = {}",);
-        String accessToken = jwtToken.delegateAccessToken(user); //유저정보를 이용해 토큰생성
-        String refreshToken = jwtToken.delegateRefreshToken(user);//리프레시 토큰 생성
-
-        response.setHeader("Authorization", "Bearer " + accessToken); // 응답 헤더에 토큰을 담는다.
-        response.setHeader("Refresh", refreshToken); //응답 헤더에 리프레시 토큰을 담는다.
-        response.setHeader("userId", String.valueOf(user.getUserId()));
-
-        if(user.getNickName() != null){
-            response.getWriter().write("로그인완료");
-            return;
-        }
-
+    protected void successfulAuthentication( HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult ) throws IOException, ServletException{
+        logger.info("successful Authentication");
         this.getSuccessHandler().onAuthenticationSuccess(request, response, authResult);
     }
 
