@@ -70,6 +70,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5', 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.0' // Use the latest version
+
+
 }
 
 tasks.named('test') {
