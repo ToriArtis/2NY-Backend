@@ -34,6 +34,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity singUpUser( @Valid @RequestBody UserDTO.Post userDto ){
+
         log.info("signUpUser: {}", userDto);
         User user = userMapperConfig.dtoToUser(userDto);
         log.error("user = {}", user.getUserStatus());
