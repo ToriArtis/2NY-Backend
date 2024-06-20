@@ -4,6 +4,7 @@ import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.entity.UserStatus;
 import com.mega._NY.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -16,7 +17,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
+@Log4j2
 public class PrincipalDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 

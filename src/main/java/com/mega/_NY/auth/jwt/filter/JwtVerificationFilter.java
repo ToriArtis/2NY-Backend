@@ -1,8 +1,8 @@
 package com.mega._NY.auth.jwt.filter;
 
-import com.mega._NY.auth.config.RedisConfig;
 import com.mega._NY.auth.config.logout.Logout;
 import com.mega._NY.auth.jwt.JwtToken;
+import com.mega._NY.auth.jwt.SecretKey;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
@@ -31,35 +31,37 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class JwtVerificationFilter extends OncePerRequestFilter {
-
-    private final RedisConfig redis;
     private final JwtToken jwtToken;
+    private final SecretKey secretKey;
+
 
     //클레임을 추출해서 Auth~에 저장하는 메서드
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain ) throws ServletException, IOException {
+    protected void doFilterInternal( HttpServletRequest request, HttpServletResponse response, FilterChain filterChain ) throws ServletException, IOException{
         log.info("doFilterInteral 메서드");
         try{
             Map<String, Object> claims = jwtToken.verifyJws(request); //클레임 추출
             setAuthtoContext(claims);//Authentication에 저장
-            log.info("");
 
-        } catch(InsufficientAuthenticationException e1){
+        } catch(InsufficientAuthenticationException e){
             log.error(InsufficientAuthenticationException.class.getSimpleName());
+
 
         } catch(MalformedJwtException e1){
             log.error(MalformedJwtException.class.getSimpleName());
 
+
         } catch(ExpiredJwtException e1){
             log.error(ExpiredJwtException.class.getSimpleName());
 
+
         } catch(Exception e1){
             log.error(Exception.class.getSimpleName());
+
         }
-        log.error("다음 메서드 진행");
+
         filterChain.doFilter(request, response); // 완료되면 다음 필터로 이동
     }
-
 
     //토큰 확인 후 예외 처리
     //회원가입할때도 여기로 온다.
@@ -83,6 +85,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
             log.error(ExpiredJwtException.class.getSimpleName());
             return true;
         }
+
         return false;
     }
 
@@ -91,8 +94,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
         String jws = jwtToken.extractJws(request); //토큰에서 Bearer 제거
         //redis 키값 앞에 붙임
-        String prefix = Logout.REDIS_KEY_PREFIX;
-        return redis.redisTemplate().opsForValue().get(prefix + jws) != null;
+        String prefix = "logouttoken";
+//        return redis.redisTemplate().opsForValue().get(prefix + jws) != null;
+        return false;
     }
 
     // 권한을 SecurityContextHoler에 저장하는 메서드
@@ -106,7 +110,6 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);//security~~에 저장
 
-        log.info("sch= {}", SecurityContextHolder.getContext().getAuthentication());
+        log.info("sch= {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
-
 }
