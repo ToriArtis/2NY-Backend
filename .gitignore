@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# API_KEY
+/src/main/resources/application.properties
