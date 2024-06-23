@@ -1,10 +1,9 @@
 package com.mega._NY.service;
 
-import com.mega._NY.auth.dto.UserSignUpDTO;
+import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.auth.service.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ public class AuthServiceTests {
         //given
         userService.joinUser(user);
         //when
-        UserSignUpDTO userSignUpDto = UserSignUpDTO.builder().email("test1@gmail.com").password("12344").address("집주소입니다.")
+        UserDTO.Post userSignUpDto = UserDTO.Post.builder().email("test1@gmail.com").password("12344").address("집주소입니다.")
                 .nickName("닉네임").realName("채현영").phone("010-3434-3434").build();
         User user1 = modelMapper.map(userSignUpDto, User.class);
         //then
@@ -55,7 +54,7 @@ public class AuthServiceTests {
         //given
         userService.joinUser(user);
         //when
-        UserSignUpDTO userSignUpDto = UserSignUpDTO.builder().email("test2@gmail.com").password("12344")
+        UserDTO.Post userSignUpDto = UserDTO.Post.builder().email("test2@gmail.com").password("12344")
                 .address("집주소입니다.").nickName("닉네임").realName("채현영").phone("010-3434-3434").build();
         User user1 = modelMapper.map(userSignUpDto, User.class);
         //then
@@ -67,7 +66,7 @@ public class AuthServiceTests {
         //given
         userService.joinUser(user);
         //when
-        UserSignUpDTO userSignUpDto = UserSignUpDTO.builder().email("test2@gmail.com").password("12344")
+        UserDTO.Post userSignUpDto = UserDTO.Post.builder().email("test2@gmail.com").password("12344")
                 .address("집주소입니다.").nickName("닉네임").realName("채현영").phone("010-3434-3434").build();
         User user1 = modelMapper.map(userSignUpDto, User.class);
         //then

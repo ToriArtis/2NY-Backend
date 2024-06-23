@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public class UserDTO {
 
     @Data
+    @Builder
     public static class Post {  // post 할 때 받는 dto
         @NotBlank private String email; // 사용자 이메일
         @NotBlank private String password; // 사용자 비밀번호
