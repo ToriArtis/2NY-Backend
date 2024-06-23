@@ -5,6 +5,7 @@ import com.mega._NY.auth.config.details.PrincipalDetails;
 import com.mega._NY.auth.dto.LoginDTO;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.jwt.JwtToken;
+import com.mega._NY.auth.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,8 +25,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Log4j2
 public class JWTLoginFilter  extends UsernamePasswordAuthenticationFilter {
-
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
 
 
     @Override
@@ -34,7 +35,8 @@ public class JWTLoginFilter  extends UsernamePasswordAuthenticationFilter {
         ObjectMapper objectMapper = new ObjectMapper();
         LoginDTO loginDto = objectMapper.readValue(request.getInputStream(), LoginDTO.class);
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
 
         return authenticationManager.authenticate(authenticationToken);
     }

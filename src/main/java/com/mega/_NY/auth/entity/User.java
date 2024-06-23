@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 @Table(name = "USERS")
-public class User  {
+public class User  implements Principal{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +35,7 @@ public class User  {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "nick_name")
+    @Column(name = "nick_name", length = 20)
     private String nickName;
 
     @Column(name = "oauth_id")
@@ -46,6 +46,8 @@ public class User  {
 
     @Column(name = "phone")
     private String phone;
+
+
 
     @Column(name = "provider")
     private String provider;
@@ -67,5 +69,8 @@ public class User  {
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 
-
+    @Override
+    public String getName() {
+        return getEmail();
+    }
 }

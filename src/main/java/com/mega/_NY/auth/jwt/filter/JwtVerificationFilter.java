@@ -1,8 +1,6 @@
 package com.mega._NY.auth.jwt.filter;
 
-import com.mega._NY.auth.config.logout.Logout;
 import com.mega._NY.auth.jwt.JwtToken;
-import com.mega._NY.auth.jwt.SecretKey;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
@@ -21,41 +19,40 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.SignatureException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-// jwt 검증 필터
 @RequiredArgsConstructor
 @Slf4j
 @Component
 public class JwtVerificationFilter extends OncePerRequestFilter {
-    private final JwtToken jwtToken;
-    private final SecretKey secretKey;
 
+    private final JwtToken jwtToken;
+
+    // 로그아웃된 토큰을 저장하는 Set (임시 메모리 저장소) => 회의 후 추후에 변경해야 함!
+    private static final Set<String> LOGGED_OUT_TOKENS = new HashSet<>();
 
     //클레임을 추출해서 Auth~에 저장하는 메서드
     @Override
-    protected void doFilterInternal( HttpServletRequest request, HttpServletResponse response, FilterChain filterChain ) throws ServletException, IOException{
-        log.info("doFilterInteral 메서드");
-        try{
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        log.info("doFilterInternal 메서드");
+        try {
             Map<String, Object> claims = jwtToken.verifyJws(request); //클레임 추출
-            setAuthtoContext(claims);//Authentication에 저장
+            setAuthtoContext(claims); //Authentication에 저장
 
-        } catch(InsufficientAuthenticationException e){
+        } catch (InsufficientAuthenticationException e) {
             log.error(InsufficientAuthenticationException.class.getSimpleName());
 
-
-        } catch(MalformedJwtException e1){
+        } catch (MalformedJwtException e1) {
             log.error(MalformedJwtException.class.getSimpleName());
 
-
-        } catch(ExpiredJwtException e1){
+        } catch (ExpiredJwtException e1) {
             log.error(ExpiredJwtException.class.getSimpleName());
 
-
-        } catch(Exception e1){
+        } catch (Exception e1) {
             log.error(Exception.class.getSimpleName());
 
         }
@@ -64,24 +61,23 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     }
 
     //토큰 확인 후 예외 처리
-    //회원가입할때도 여기로 온다.
     @Override
-    protected boolean shouldNotFilter( HttpServletRequest request ) throws ServletException{
-        log.info("shoudNotFilter 진입");
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        log.info("shouldNotFilter 진입");
         String authorization = request.getHeader("Authorization"); // Authorization의 밸류값 획득
 
-        if(authorization == null){
+        if (authorization == null) {
             log.error(NullPointerException.class.getSimpleName());
-            return true; //true면 예외 처리가 된다.
+            return true; // true면 예외 처리가 된다.
         }
 
-        if(! authorization.startsWith("Bearer ")){
+        if (!authorization.startsWith("Bearer ")) {
             log.error(MalformedJwtException.class.getSimpleName());
             return true;
         }
 
-        //로그아웃 됐을 때 토큰의 권한이 없어졌는지 확인, 토큰이 레디스에 있으면 로그아웃 된 것, true를 리턴하여 예외처리함.
-        if(notVaildatedToken(request)){
+        // 로그아웃 됐을 때 토큰의 권한이 없어졌는지 확인
+        if (notValidatedToken(request)) {
             log.error(ExpiredJwtException.class.getSimpleName());
             return true;
         }
@@ -89,27 +85,27 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         return false;
     }
 
-    //토큰이 로그아웃된 토큰인지 확인하는메서드
-    public boolean notVaildatedToken( HttpServletRequest request ){
-
+    // 토큰이 로그아웃된 토큰인지 확인하는 메서드
+    public boolean notValidatedToken(HttpServletRequest request) {
         String jws = jwtToken.extractJws(request); //토큰에서 Bearer 제거
-        //redis 키값 앞에 붙임
-        String prefix = "logouttoken";
-//        return redis.redisTemplate().opsForValue().get(prefix + jws) != null;
-        return false;
+        return LOGGED_OUT_TOKENS.contains(jws);
     }
 
-    // 권한을 SecurityContextHoler에 저장하는 메서드
-    private void setAuthtoContext( Map<String, Object> claims ){
-        String username = (String) claims.get("username");// 해당 키값의 밸류 추출(이메일)
-        List<String> roles = (List<String>) claims.get("roles");//해당 키값의 밸류 추출(역할)
-        List<GrantedAuthority> authorties = roles.stream()//추출한 역할을 바탕으로 권한생성
+    // 권한을 SecurityContextHolder에 저장하는 메서드
+    private void setAuthtoContext(Map<String, Object> claims) {
+        String username = (String) claims.get("username"); // 해당 키값의 밸류 추출(이메일)
+        List<String> roles = (List<String>) claims.get("roles"); //해당 키값의 밸류 추출(역할)
+        List<GrantedAuthority> authorities = roles.stream() //추출한 역할을 바탕으로 권한생성
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList());
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorties);//authentication에 유저네임과 권한 저장
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);//security~~에 저장
+        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorities); //authentication에 유저네임과 권한 저장
+        SecurityContextHolder.getContext().setAuthentication(authentication); //security~~에 저장
 
         log.info("sch= {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    }
+
+    // 로그아웃된 토큰을 저장하는 메서드 (예제에서 추가)
+    public static void addLoggedOutToken(String token) {
+        LOGGED_OUT_TOKENS.add(token);
     }
 }
