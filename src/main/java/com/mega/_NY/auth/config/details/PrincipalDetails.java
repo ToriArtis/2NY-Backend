@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Data
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
+    @Getter
     private User user;
     private Map<String, Object> attributes;
 
@@ -61,7 +62,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public boolean isEnabled(){
-        return true;
+        return user.getUserStatus() != UserStatus.USER_WITHDRAWAL; // 회원 탈퇴 여부 확인용
     }
 
     @Override
