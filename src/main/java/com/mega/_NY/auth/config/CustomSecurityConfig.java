@@ -4,13 +4,16 @@ import com.mega._NY.auth.config.handler.UserAccessDeniedHandler;
 import com.mega._NY.auth.config.handler.UserAuthenticationEntryPoint;
 import com.mega._NY.auth.jwt.JwtToken;
 import com.mega._NY.auth.jwt.SecretKey;
+import com.mega._NY.auth.jwt.filter.JWTLoginFilter;
 import com.mega._NY.auth.jwt.filter.JwtAuthenticationFilter;
 import com.mega._NY.auth.jwt.filter.JwtVerificationFilter;
 import com.mega._NY.auth.repository.UserRepository;
+import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,10 +44,16 @@ public class CustomSecurityConfig {
 
         http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
-                    authorizationManagerRequestMatcherRegistry.anyRequest().authenticated();
+                    authorizationManagerRequestMatcherRegistry
+                            .requestMatchers("/").permitAll()
+                            .requestMatchers("/users/**").permitAll()
+                            .requestMatchers("/users/**").permitAll()
+                            .requestMatchers("/items/**").permitAll()
+                            .anyRequest().authenticated();
                 })
                 .headers(httpSecurityHeadersConfigurer
                         -> httpSecurityHeadersConfigurer.frameOptions(frameOptionsConfig -> frameOptionsConfig.sameOrigin()));
+
 
 
         http.sessionManagement(httpSecuritySessionManagementConfigurer
@@ -61,7 +70,7 @@ public class CustomSecurityConfig {
             httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(new UserAuthenticationEntryPoint());
                 });
 
-//        http.apply(new CustomFilterConfigurer(jwtToken,userRepository)); -> 이것만 해결하면 됨~
+//      http.addFilterBefore(new JWTLoginFilter(AuthenticationManager, userRepository)); <- 이거 고쳐보기
         http.addFilterBefore(new JwtAuthenticationFilter(jwtToken, userDetailsService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(new JwtVerificationFilter(jwtToken), JwtAuthenticationFilter.class);
 

@@ -4,7 +4,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
-import lombok.Value;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -13,7 +13,7 @@ import java.security.Key;
 @Component
 public class SecretKey {
     @Getter
-//    @Value("${jwt.secret-key}")
+    @Value("jwt.secret-key")
     private String baseKey;
 
     public Key getSecretKey( String baseKey ){
