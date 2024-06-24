@@ -21,7 +21,7 @@ public class AuthRepositoryTests {
 
     @Test
     public void insertUsers() {
-        IntStream.range(50,55).forEach(i -> {
+        IntStream.range(0,55).forEach(i -> {
             User auth = User.builder()
                     .password(passwordEncoder.encode("1111"))
                     .nickName("tu" + i)

@@ -42,7 +42,7 @@ public class JwtTokenTest {
 
     @Test
     void acccess_tioken_create() throws Exception{
-        String accessToken = getAccessToken(key, user, 2, Calendar.MINUTE);
+        String accessToken = getAccessToken(key, user, 20, Calendar.HOUR);
         log.info("accessToken create : "+accessToken);
         assertThat(accessToken).isNotNull();
     }
