@@ -1,6 +1,7 @@
 package com.mega._NY.auth.entity;
 
 
+import com.mega._NY.cart.entity.Cart;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -73,4 +74,8 @@ public class User  implements Principal{
     public String getName() {
         return getEmail();
     }
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Cart cart;
+
 }

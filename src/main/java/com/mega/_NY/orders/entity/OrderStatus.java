@@ -1,6 +1,4 @@
-package com.mega._NY.order.entity;
-
-import lombok.Getter;
+package com.mega._NY.orders.entity;
 
 public enum OrderStatus {
 
