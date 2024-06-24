@@ -34,7 +34,6 @@ public class UserController {
     private final ModelMapper modelMapper;
     private final UserService userService;
     private final JwtToken jwtUtil;
-    private final AuthenticationManager authenticationManager;
 
 
     @PostMapping

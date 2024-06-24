@@ -1,6 +1,5 @@
-package com.mega._NY.order.entity;
+package com.mega._NY.orders.entity;
 
-import com.mega._NY.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order {
+public class Orders {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,9 +27,9 @@ public class Order {
 
     @Column(nullable = false)
     private String phone;
-
-    @ManyToOne
-    private User user;
+//
+//    @ManyToOne
+//    private User user;
 
     @Column
     private LocalDateTime createdAt;

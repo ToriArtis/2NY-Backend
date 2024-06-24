@@ -2,13 +2,10 @@ package com.mega._NY.cart.entity;
 
 import com.mega._NY.item.entity.Item;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.*;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,17 +19,27 @@ public class ItemCart {
     @Column(nullable = false)
     private int quantity;
 
-    @Column
-    @ColumnDefault("0")
-    private int period;
-
     @Column(nullable = false)
     private boolean buyNow;
 
     @ManyToOne
+    @JoinColumn(name = "ITEM_ID")
     private Item item;
 
     @ManyToOne
+    @JoinColumn(name = "CART_ID")
     private Cart cart;
+
+    public void addCart(Cart cart) {
+        this.cart = cart;
+        if(!this.cart.getItemCarts().contains(this)) {
+            this.cart.getItemCarts().add(this);
+        }
+    }
+
+    // 장바구니에 같은 상품을 또 담을 경우 수량만 증가
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
+    }
 
 }

@@ -1,4 +1,4 @@
-package com.mega._NY.order.entity;
+package com.mega._NY.orders.entity;
 
 import com.mega._NY.item.entity.Item;
 import jakarta.persistence.*;
@@ -13,7 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemOrder {
+public class ItemOrders {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +27,6 @@ public class ItemOrder {
     private Item item;
 
     @ManyToOne
-    private Order order;
+    private Orders orders;
 
 }
