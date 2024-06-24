@@ -30,6 +30,7 @@ public class ItemCart {
     @JoinColumn(name = "CART_ID")
     private Cart cart;
 
+    // 장바구니에 상품 추가 (양방향 관계)
     public void addCart(Cart cart) {
         this.cart = cart;
         if(!this.cart.getItemCarts().contains(this)) {

@@ -1,9 +1,7 @@
 package com.mega._NY.cart.controller;
 
-import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.dto.ItemCartDTO;
-import com.mega._NY.cart.entity.ItemCart;
-import com.mega._NY.cart.mapper.ItemCartMapper;
+import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.service.CartService;
 import com.mega._NY.cart.service.ItemCartService;
 import jakarta.validation.Valid;
@@ -24,54 +22,42 @@ import org.springframework.web.bind.annotation.*;
 public class ItemCartController {
 
     private final ItemCartService itemCartService;
-    private final ItemCartMapper itemCartMapper;
-//    private final ItemMapper itemMapper;
-//    private final ItemService itemService;
     private final CartService cartService;
-    private final UserService userService;
 
-    @PostMapping("/{item-id}") // 장바구니 담기
-    public ResponseEntity postItemCart(@Valid @RequestBody ItemCartDTO.Post itemCartPostDto,
-                                       @PathVariable("item-id") @Positive long itemId) {
-
-//        ItemCart itemCart = itemCartService.addItemCart(itemCartMapper.
-//                itemCartPostDtoToItemCart(itemId, userService, itemService, itemCartPostDto));
-
-        ItemCart itemCart = itemCartService.addItemCart(itemCartMapper.
-                itemCartPostDtoToItemCart(itemId, userService, itemCartPostDto));
-
-        cartService.refreshCart(itemCart.getCart().getCartId());
-
-        ItemCartDTO.Response response = itemCartMapper.itemCartToItemCartResponseDto(itemCart);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    // 장바구니에 상품 추가
+    @PostMapping("/{item-id}")
+    public ResponseEntity<ItemCartDTO> postItemCart(@Valid @RequestBody ItemCartDTO itemCartDTO,
+                                                    @PathVariable("item-id") @Positive Long itemId) {
+        Cart cart = cartService.findMyCart();  // 현재 사용자의 Cart를 가져옵니다.
+        ItemCartDTO createdItemCart = itemCartService.addItemCart(itemCartDTO, itemId, cart);
+        cartService.refreshCart(cart.getCartId());
+        return new ResponseEntity<>(createdItemCart, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/itemcarts/{itemcart-id}") // 장바구니 아이템 수량 변경
-    public ResponseEntity upDownItemCart(@PathVariable("itemcart-id") @Positive long itemCartId,
-                                         @RequestParam(value="upDown") int upDown) {
-
-        ItemCart upDownItemCart = itemCartService.updownItemCart(itemCartId, upDown);
-        cartService.refreshCart(upDownItemCart.getCart().getCartId());
-
-        ItemCartDTO.Response response = itemCartMapper.itemCartToItemCartResponseDto(upDownItemCart);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    // 장바구니 상품 수량 변경
+    @PatchMapping("/itemcarts/{itemcart-id}")
+    public ResponseEntity<ItemCartDTO> upDownItemCart(@PathVariable("itemcart-id") @Positive long itemCartId,
+                                                      @RequestParam(value="upDown") int upDown) {
+        ItemCartDTO updatedItemCart = itemCartService.updownItemCart(itemCartId, upDown);
+        cartService.refreshCart(updatedItemCart.getCartId());
+        return new ResponseEntity<>(updatedItemCart, HttpStatus.OK);
     }
 
-    @PatchMapping("/itemcarts/exclude/{itemcart-id}") // 장바구니 아이템 체크/해제 - 디폴트는 해제 요청
-    public ResponseEntity excludeItemCart(@PathVariable("itemcart-id") @Positive long itemCartId,
-                                          @RequestParam(value="buyNow", defaultValue = "false") boolean buyNow) {
-        ItemCart itemCart = itemCartService.excludeItemCart(itemCartId, buyNow);
-        cartService.refreshCart(itemCart.getCart().getCartId());
-
-        return new ResponseEntity(HttpStatus.OK);
+    // 장바구니 상품 구매 여부 변경
+    @PatchMapping("/itemcarts/exclude/{itemcart-id}")
+    public ResponseEntity<ItemCartDTO> excludeItemCart(@PathVariable("itemcart-id") @Positive long itemCartId,
+                                                       @RequestParam(value="buyNow", defaultValue = "false") boolean buyNow) {
+        ItemCartDTO itemCart = itemCartService.excludeItemCart(itemCartId, buyNow);
+        cartService.refreshCart(itemCart.getCartId());
+        return new ResponseEntity<>(itemCart, HttpStatus.OK);
     }
 
-    @DeleteMapping("/itemcarts/{itemcart-id}") // 장바구니에서 특정 아이템 삭제
-    public ResponseEntity deleteItemCart(@PathVariable("itemcart-id") @Positive long itemCartId) {
+    // 장바구니에서 상품 삭제
+    @DeleteMapping("/itemcarts/{itemcart-id}")
+    public ResponseEntity<Void> deleteItemCart(@PathVariable("itemcart-id") @Positive long itemCartId) {
         long cartId = itemCartService.deleteItemCart(itemCartId);
         cartService.refreshCart(cartId);
-
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

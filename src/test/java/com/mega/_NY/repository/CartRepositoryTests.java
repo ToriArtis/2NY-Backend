@@ -1,6 +1,7 @@
 package com.mega._NY.repository;
 
 import com.mega._NY.auth.entity.User;
+import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.entity.ItemCart;
 import com.mega._NY.cart.repository.CartRepository;
@@ -17,14 +18,19 @@ public class CartRepositoryTests {
 
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     public void testSaveCart() {
         User user = new User();
-        user.setEmail("test50@naver.com");
+        user.setEmail("test100@naver.com");
+
+        // User를 먼저 저장
+        User savedUser = userRepository.save(user);
 
         Cart cart = new Cart();
-        cart.setUser(user);
+        cart.setUser(savedUser);
 
         Cart savedCart = cartRepository.save(cart);
 

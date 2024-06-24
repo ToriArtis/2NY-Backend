@@ -22,16 +22,11 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
 
     private final CartService cartService;
-    private final CartMapper cartMapper;
-    private final ItemCartService itemCartService;
-//    private final ItemMapper itemMapper;
-    private final ItemCartMapper itemCartMapper;
 
+    // 현재 사용자의 장바구니 조회
     @GetMapping
-    public ResponseEntity getCart() {
-
-        Cart cart = cartService.findMyCart();
-        CartDTO cartDTO = cartMapper.cartToCartResponseDto(cart, cartService, itemCartService, itemCartMapper);
+    public ResponseEntity<CartDTO> getCart() {
+        CartDTO cartDTO = cartService.findMyCartDTO();
         return ResponseEntity.ok(cartDTO);
     }
 

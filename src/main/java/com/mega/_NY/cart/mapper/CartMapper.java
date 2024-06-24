@@ -2,36 +2,20 @@ package com.mega._NY.cart.mapper;
 
 import com.mega._NY.cart.dto.CartDTO;
 import com.mega._NY.cart.entity.Cart;
-import com.mega._NY.cart.entity.ItemCart;
-import com.mega._NY.cart.service.CartService;
-import com.mega._NY.cart.service.ItemCartService;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.util.List;
-
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ItemCartMapper.class})
 public interface CartMapper {
 
-    default CartDTO cartToCartResponseDto(Cart cart, CartService cartService, ItemCartService itemCartService,
-//                                          ItemMapper itemMapper,
-                                          ItemCartMapper itemCartMapper) {
-        CartDTO cartResponseDto = new CartDTO();
-        cartResponseDto.setCartId(cart.getCartId());
+    // Cart 엔티티를 CartDTO로 변환
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "itemCarts", target = "itemCarts")
+    CartDTO toDTO(Cart cart);
 
-        List<ItemCart> itemCarts = itemCartService.findItemCarts(cart); // 목록은 체크 + 언체크 모두 조회
-
-//        itemCartMapper.itemCartsToItemCartResponseDtos(itemMapper, itemCarts);
-//        cartResponseDto.setItemCarts(new MultiResponseDto<>(
-//                itemCartMapper.itemCartsToItemCartResponseDtos(itemMapper, itemCarts))
-//        );
-
-        cartResponseDto.setTotalPrice(cart.getTotalPrice());
-        cartResponseDto.setTotalItems(cart.getTotalItems());
-
-        cartResponseDto.setTotalDiscountPrice(cartService.countTotalDiscountPrice(cart.getCartId()));
-        cartResponseDto.setExpectPrice(cartResponseDto.getTotalPrice() - cartResponseDto.getTotalDiscountPrice());
-
-        return cartResponseDto;
-    }
+    // CartDTO를 Cart 엔티티로 변환
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "itemCarts", ignore = true)
+    Cart toEntity(CartDTO cartDTO);
 
 }

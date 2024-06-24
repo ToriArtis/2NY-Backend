@@ -41,6 +41,7 @@ public class Cart {
         this.user = user;
     }
 
+    // 장바구니에 상품 추가
     public void addItemCart(ItemCart itemCart) {
         this.itemCarts.add(itemCart);
         if(itemCart.getCart() != this) {
@@ -48,7 +49,7 @@ public class Cart {
         }
     }
 
-    // 회원 한 명이 하나의 장바구니를 가지므로 회원당 1회만 장바구니 생성
+    // 새 장바구니 생성 (사용자당 하나의 장바구니)
     public static Cart createCart(User user) {
         Cart cart = new Cart();
         cart.user = user;

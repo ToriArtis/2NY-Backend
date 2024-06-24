@@ -1,54 +1,23 @@
 package com.mega._NY.cart.mapper;
 
-import com.mega._NY.auth.entity.User;
-import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.dto.ItemCartDTO;
 import com.mega._NY.cart.entity.ItemCart;
 import org.mapstruct.Mapper;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ItemCartMapper {
 
-    default ItemCart itemCartPostDtoToItemCart(long itemId, UserService userService,
-//                                               ItemService itemService,
-                                               ItemCartDTO.Post itemCartPostDto) {
-        User user = userService.getLoginUser();
-        return ItemCart.builder()
-                .quantity(itemCartPostDto.getQuantity())
-                .buyNow(true)
-                .cart(user.getCart())
-//                .item(itemService.findVerifiedItem(itemId))
-                .build();
-    }
+    // ItemCart 엔티티를 ItemCartDTO로 변환
+    @Mapping(source = "item.itemId", target = "itemId")
+    @Mapping(source = "cart.cartId", target = "cartId")
+    @Mapping(source = "item.price", target = "price")
+    @Mapping(source = "item.discountRate", target = "discountRate")
+    ItemCartDTO toDTO(ItemCart itemCart);
 
-    default ItemCartDTO.Response itemCartToItemCartResponseDto(ItemCart itemCart
-//                                                               ItemMapper itemMapper
-                                                               ) {
-        return ItemCartDTO.Response.builder()
-                .itemCartId(itemCart.getItemCartId())
-                .quantity(itemCart.getQuantity())
-                .buyNow(itemCart.isBuyNow())
-//                .item(itemMapper.itemToItemSimpleResponseDto(itemCart.getItem()))
-//                .createdAt(itemCart.getCreatedAt())
-//                .updatedAt(itemCart.getUpdatedAt())
-                .build();
-    }
-
-    default List<ItemCartDTO.Response> itemCartsToItemCartResponseDtos(List<ItemCart> itemCarts
-//                                                                       ItemMapper itemMapper,
-                                                                       ) {
-        if(itemCarts == null) return null;
-
-        List<ItemCartDTO.Response> itemCartResponseDtos = new ArrayList<>(itemCarts.size());
-
-//        for(ItemCart itemCart : itemCarts) {
-//            itemCartResponseDtos.add(itemCartToItemCartResponseDto(itemMapper, itemCart));
-//        }
-
-        return itemCartResponseDtos;
-    }
+    // ItemCartDTO를 ItemCart 엔티티로 변환
+    @Mapping(target = "cart", ignore = true)
+    @Mapping(target = "item", ignore = true)
+    ItemCart toEntity(ItemCartDTO itemCartDTO);
 
 }
