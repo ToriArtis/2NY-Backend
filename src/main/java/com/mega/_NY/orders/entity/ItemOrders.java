@@ -10,7 +10,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Setter
-@Entity
+@Entity(name = "ITEM_ORDERS")
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemOrders {
@@ -19,14 +19,18 @@ public class ItemOrders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemOrderId;
 
+    // 주문 수량
     @Column
     @ColumnDefault("0")
     private int quantity;
 
+    // 주문한 상품
     @ManyToOne
+    @JoinColumn(name="ITEM_ID")
     private Item item;
 
     @ManyToOne
+    @JoinColumn(name = "ORDER_ID")
     private Orders orders;
 
 }

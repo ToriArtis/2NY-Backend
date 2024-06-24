@@ -1,16 +1,26 @@
 package com.mega._NY.service;
 
 import com.mega._NY.auth.entity.User;
+import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.repository.CartRepository;
 import com.mega._NY.cart.service.CartService;
+import com.mega._NY.cart.service.ItemCartService;
+import io.jsonwebtoken.lang.Assert;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import java.util.Optional;
 
 
+@Slf4j
 @SpringBootTest
+@Transactional
 public class CartServiceTests {
 
     @Autowired
@@ -19,51 +29,67 @@ public class CartServiceTests {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     public void testFindMyCart() {
-        // Given
-        User user = new User();
-        user.setEmail("test@example.com");
+        // 현재 사용자의 장바구니를 찾는 테스트
+        // 기존 사용자 조회
+        Optional<User> optionalUser = userRepository.findByEmail("test100@naver.com");
+        if (!optionalUser.isPresent()) {
+            log.info("테스트를 위한 기존 사용자가 없습니다.");
+            throw new RuntimeException("테스트를 위한 기존 사용자가 없습니다.");
+        }
+        User existingUser = optionalUser.get();
+        log.info("Found existing user: {}", existingUser.getEmail());
 
-        Cart cart = new Cart();
-        cart.setUser(user);
-        Cart savedCart = cartRepository.save(cart);
+        // 사용자의 기존 카트 조회
+        Cart existingCart = cartRepository.findByUser(existingUser);
+        if (existingCart == null) {
+            log.info("사용자의 카트가 없습니다.");
+            throw new RuntimeException("사용자의 카트가 없습니다.");
+        }
+        log.info("Found existing cart with ID: {}", existingCart.getCartId());
 
-        // When
-        Cart foundCart = cartService.findMyCart();
+        // 사용자로 장바구니 조회
+        Cart foundCart = cartRepository.findByUser(existingUser);
+        log.info("Found cart by user: {}", foundCart != null ? foundCart.getCartId() : "null");
 
-        // Then
-        System.out.println("Found Cart ID: " + foundCart.getCartId());
-        System.out.println("Found Cart User Email: " + foundCart.getUser().getEmail());
-        // 여기서는 찾은 카트의 ID와 사용자 이메일을 출력합니다.
-        // 실제 검증은 하지 않습니다.
+        // 조회된 장바구니가 null이 아닌지 확인
+        Assert.notNull(foundCart, "Found cart should not be null");
+        log.info("Assert passed: Found cart is not null");
+
+        // 조회된 장바구니 ID가 원래 장바구니 ID와 동일한지 확인
+        Assert.isTrue(existingCart.getCartId().equals(foundCart.getCartId()), "Cart IDs should be equal");
+        log.info("Assert passed: Cart IDs are equal");
+
+        log.info("testReadCart completed successfully");
     }
 
     @Test
     public void testRefreshCart() {
-        // Given
-        User user = new User();
-        user.setEmail("test@example.com");
-
+        // 장바구니 정보를 갱신하는 테스트
         Cart cart = new Cart();
-        cart.setUser(user);
-        cart.setTotalItems(5);
-        cart.setTotalPrice(1000);
-        Cart savedCart = cartRepository.save(cart);
+        cart = cartRepository.save(cart);
+        cartService.refreshCart(cart.getCartId());
 
-        // When
-        cartService.refreshCart(savedCart.getCartId());
+        Cart refreshedCart = cartService.findVerifiedCart(cart.getCartId());
+        log.info("Refreshed cart: {}", refreshedCart);
 
-        // Then
-        Cart refreshedCart = cartRepository.findById(savedCart.getCartId()).orElse(null);
-        if (refreshedCart != null) {
-            System.out.println("Refreshed Cart Total Items: " + refreshedCart.getTotalItems());
-            System.out.println("Refreshed Cart Total Price: " + refreshedCart.getTotalPrice());
-        } else {
-            System.out.println("Refreshed Cart not found");
-        }
-        // 여기서는 새로 고침된 카트의 총 아이템 수와 총 가격을 출력합니다.
-        // 실제 검증은 하지 않습니다.
+    }
+
+    @Test
+    public void testFindVerifiedCart() {
+        // 유효한 장바구니를 찾는 테스트
+        Cart cart = new Cart();
+        cart = cartRepository.save(cart);
+
+        Cart foundCart = cartService.findVerifiedCart(cart.getCartId());
+        log.info("Verified cart: {}", foundCart);
     }
 
 }

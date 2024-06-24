@@ -1,16 +1,20 @@
 package com.mega._NY.cart.service;
 
-import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
+import com.mega._NY.cart.dto.ItemCartDTO;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.entity.ItemCart;
+import com.mega._NY.cart.mapper.ItemCartMapper;
 import com.mega._NY.cart.repository.ItemCartRepository;
+import com.mega._NY.cart.util.EntityUtils;
+import com.mega._NY.item.entity.Item;
+import com.mega._NY.item.repository.ItemRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -18,71 +22,89 @@ import java.util.Optional;
 public class ItemCartService {
 
     private final ItemCartRepository itemCartRepository;
+    private final ItemCartMapper itemCartMapper;
+    private final ItemRepository itemRepository;
 
-    public ItemCart addItemCart(ItemCart itemCart) {
-        ItemCart findItemCart = checkItemCart(itemCart);
+    // 장바구니에 상품 추가
+    public ItemCartDTO addItemCart(ItemCartDTO itemCartDTO, Long itemId, Cart cart) {
+        Item item = EntityUtils.findVerifiedEntity(itemRepository, itemId, ExceptionCode.ITEMCART_NOT_FOUND);
 
-        if(findItemCart == null) {
-            createItemCart(itemCart); // 상품이 장바구니에 없는 경우 장바구니에 추가
-            return itemCart;
+        ItemCart existingItemCart = itemCartRepository.findByCartAndItem(cart, item);
+        if(existingItemCart == null) {
+            ItemCart newItemCart = itemCartMapper.toEntity(itemCartDTO);
+            newItemCart.setCart(cart);
+            newItemCart.setItem(item);
+            newItemCart.setBuyNow(true);
+            return itemCartMapper.toDTO(itemCartRepository.save(newItemCart));
         } else {
-            findItemCart.addQuantity(itemCart.getQuantity()); // 상품이 장바구니에 이미 있는 경우 수량만 증가
-            itemCartRepository.save(findItemCart);
-            return findItemCart;
+            existingItemCart.addQuantity(itemCartDTO.getQuantity());
+            return itemCartMapper.toDTO(itemCartRepository.save(existingItemCart));
         }
     }
 
-    public ItemCart createItemCart(ItemCart itemCart) { // 상품이 장바구니에 없는 경우
-        return itemCartRepository.save(itemCart);
-    }
-
-    public ItemCart checkItemCart(ItemCart itemCart) { // 장바구니에 특정 아이템이 이미 담겨있는지 확인
-        return itemCartRepository.findByCartAndItem(
-                itemCart.getCart(), itemCart.getItem());
-    }
-
-    public ItemCart findItemCart(long itemCartId) {
-        ItemCart findItemCart = findVerifiedItemCart(itemCartId);
-        return findItemCart;
-    }
-
-    public ItemCart updownItemCart(long itemCartId, int upDown) { // 수량 변경( +1 or -1)
+    // 장바구니 상품 수량 변경
+    public ItemCartDTO updownItemCart(long itemCartId, int upDown) {
         ItemCart itemCart = findVerifiedItemCart(itemCartId);
         itemCart.addQuantity(upDown);
-        itemCartRepository.save(itemCart);
-        return itemCart;
+        return itemCartMapper.toDTO(itemCartRepository.save(itemCart));
     }
 
-    public ItemCart excludeItemCart(long itemCartId, boolean buyNow) { // 아이템 체크 및 해제
+    // 장바구니 상품 구매 여부 변경
+    public ItemCartDTO excludeItemCart(long itemCartId, boolean buyNow) {
         ItemCart itemCart = findVerifiedItemCart(itemCartId);
         itemCart.setBuyNow(buyNow);
-        return itemCartRepository.save(itemCart);
+        return itemCartMapper.toDTO(itemCartRepository.save(itemCart));
     }
 
-    public long deleteItemCart(long itemCartId) { // 장바구니 항목 삭제
+    // 장바구니에서 상품 삭제
+    public long deleteItemCart(long itemCartId) {
         ItemCart itemCart = findVerifiedItemCart(itemCartId);
-        long cartId = itemCart.getCart().getCartId(); // 장바구니 리프레시를 위해 카트 정보 확인
+        long cartId = itemCart.getCart().getCartId();
         itemCartRepository.delete(itemCart);
-
         return cartId;
     }
 
-    public List<ItemCart> findItemCarts(Cart cart) { // 장바구니 목록 조회
-        return itemCartRepository.findAllByCart(cart);
-        // subscription - true 정기구독, false 일반
+    public List<ItemCartDTO> findItemCarts(Cart cart, Boolean buyNow) {
+        List<ItemCart> itemCarts = buyNow == null ?
+                itemCartRepository.findAllByCart(cart) :
+                itemCartRepository.findAllByCartAndBuyNow(cart, buyNow);
+        return itemCarts.stream()
+                .map(itemCartMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<ItemCart> findItemCarts(Cart cart, boolean buyNow) { // 금액 합계, 주문
-        return itemCartRepository.findAllByCartAndBuyNow(cart, buyNow);
-        // subscription - true 정기구독, false 일반
-        // buyNow - true 체크박스 활성화, false 체크박스 비활성화
+    public void updateCartTotals(Cart cart) {
+        List<ItemCartDTO> itemCarts = findItemCarts(cart, null);
+        int totalPrice = calculateTotalPrice(itemCarts);
+        int totalDiscountPrice = calculateTotalDiscountPrice(itemCarts);
+        int totalItems = itemCarts.size();
+
+        cart.setTotalPrice(totalPrice);
+        cart.setTotalDiscountPrice(totalDiscountPrice);
+        cart.setTotalItems(totalItems);
     }
 
-    public ItemCart findVerifiedItemCart(long itemCartId) {
-        Optional<ItemCart> optionalItemCart = itemCartRepository.findById(itemCartId);
-        ItemCart findItemCart = optionalItemCart.orElseThrow(() ->
-                new BusinessLogicException(ExceptionCode.ITEMCART_NOT_FOUND));
-        return findItemCart;
+    private int calculateTotalPrice(List<ItemCartDTO> itemCarts) {
+        return itemCarts.stream()
+                .mapToInt(ic -> ic.getPrice() * ic.getQuantity())
+                .sum();
     }
 
+    private int calculateTotalDiscountPrice(List<ItemCartDTO> itemCarts) {
+        return itemCarts.stream()
+                .mapToInt(ic -> {
+                    int discountPrice = ic.getPrice() * (100 - ic.getDiscountRate()) / 100;
+                    return discountPrice * ic.getQuantity();
+                })
+                .sum();
+    }
+
+    // 장바구니에 담긴 상품 수
+    private int countTotalItems(List<ItemCartDTO> itemCarts) {
+        return itemCarts.size();
+    }
+
+    private ItemCart findVerifiedItemCart(long itemCartId) {
+        return EntityUtils.findVerifiedEntity(itemCartRepository, itemCartId, ExceptionCode.ITEMCART_NOT_FOUND);
+    }
 }

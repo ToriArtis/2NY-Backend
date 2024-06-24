@@ -1,20 +1,24 @@
 package com.mega._NY.cart.dto;
 
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 public class CartDTO {
 
-    @Positive
     private Long cartId;
+    private Long userId;
     private int totalItems;
     private int totalPrice;
     private int totalDiscountPrice;
-    private int expectPrice; // 결제 예상 금액 (totalPrice - totalDiscountPrice)
+    private List<ItemCartDTO> itemCarts;
 
 }
