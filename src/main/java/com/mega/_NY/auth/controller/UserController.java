@@ -1,24 +1,16 @@
 package com.mega._NY.auth.controller;
 
-import com.mega._NY.auth.config.logout.Logout;
 import com.mega._NY.auth.dto.LoginDTO;
+import com.mega._NY.auth.dto.ResponseDTO;
 import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.User;
-import com.mega._NY.auth.jwt.JwtToken;
+import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,47 +22,57 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private final Logout logout;
-    private final ModelMapper modelMapper;
-    private final UserService userService;
-    private final JwtToken jwtUtil;
+    private UserService userService;
+    @Autowired
+    private TokenProvider tokenProvider;
 
 
-    @PostMapping
-    public ResponseEntity<?> singUpUser( @Valid @RequestBody UserDTO.Post userSignUpDto ){
-        User user = modelMapper.map(userSignUpDto, User.class);
-        log.info(user);
-        userService.joinUser(user);
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO){
+        try {
+            User user = User.builder()
+                    .email(userDTO.getEmail())
+                    .realName(userDTO.getRealName())
+                    .password(userDTO.getPassword())
+                    .build();
+            //서비스를 이용해 리포지터리에 사용자 저장
+            User registeredUser = userService.joinUser(user);
+            UserDTO responseUserDTO = UserDTO.builder()
+                    .email(registeredUser.getEmail())
+                    .realName(registeredUser.getRealName())
+                    .build();
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+            return ResponseEntity.ok().body(responseUserDTO);
+        }catch (Exception e){
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity
+                    .badRequest()
+                    .body(responseDTO);
+        }
     }
 
-    @GetMapping("/logout")
-    public ResponseEntity<?> handleLogout( HttpServletRequest request ){
-        logout.doLogout(request);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
-    }
+    @PostMapping("/login")
+    public  ResponseEntity<?> authenticate(@RequestBody LoginDTO userDTO){
+        User user = userService.getByCredentials(
+                userDTO.getEmail(),
+                userDTO.getPassword()
+        );
+        if( user != null){
+            final String token = tokenProvider.create(user);
+            final UserDTO responseUserDTO = UserDTO.builder()
+                    .email(user.getEmail())
+                    .token(token)
+                    .build();
+            return ResponseEntity.ok().body(responseUserDTO);
+        }
+        else{
+            ResponseDTO responseDTO = ResponseDTO.builder()
+                    .error("Login failed").build();
 
-    @GetMapping
-    public ResponseEntity<?> getUserInfo(){
-        User user = userService.getLoginUser();
-        UserDTO.Response userinfo = modelMapper.map(user, UserDTO.Response.class);
-        log.info("getUserInfo" + userinfo);
-        return new ResponseEntity<>(userinfo, HttpStatus.ACCEPTED);
-    }
+            return ResponseEntity
+                    .badRequest()
+                    .body(responseDTO);
+        }
 
-    @DeleteMapping
-    public ResponseEntity deleteUser( HttpServletRequest request ){
-        User user = userService.deleteUser();
-        logout.doLogout(request);
-        return new ResponseEntity<>(user.getUserStatus().getStatus(), HttpStatus.ACCEPTED);
-    }
-
-    @PatchMapping
-    public ResponseEntity updateInfo( @Valid @RequestBody UserDTO.Post userDto ){
-        log.error("컨트롤러 진입");
-        User user = userService.updateUser(userDto);
-        UserDTO.Response userInfo = modelMapper.map(user, UserDTO.Response.class);
-        return new ResponseEntity(userInfo, HttpStatus.ACCEPTED);
     }
 }

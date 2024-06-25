@@ -18,12 +18,12 @@ import java.util.Optional;
 public class UserInfoFilter {
     private final UserRepository userRepository;
 
-    private void existDisplayName(String displayName) {
-        log.info("displayName = {}", displayName);
-        if (displayName == null) return;
-        Optional<User> user = userRepository.findByNickName(displayName);
-        if (user.isPresent()) throw new BusinessLogicException(ExceptionCode.EXIST_DISPLAY_NAME);
-    }
+//    private void existDisplayName(String displayName) {
+//        log.info("displayName = {}", displayName);
+//        if (displayName == null) return;
+//        Optional<User> user = userRepository.findByNickName(displayName);
+//        if (user.isPresent()) throw new BusinessLogicException(ExceptionCode.EXIST_DISPLAY_NAME);
+//    }
 
     public void existEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -39,41 +39,41 @@ public class UserInfoFilter {
 
     public void filterUserInfo(User user) {
         existEmail(user.getEmail());
-        existDisplayName(user.getNickName());
+//        existDisplayName(user.getNickName());
         existPhoneNum(user.getPhone());
     }
 
-    public void filterMoreInfo(UserDTO.PostMoreInfo user) {
-        existDisplayName(user.getNickName());
-        existPhoneNum(user.getPhone());
-    }
-
-    public void filterUpdateUser(UserDTO.Post userDto) {
-        checkPhone(userDto);
-        checkDisplayName(userDto);
-    }
-
-    public void checkPhone(UserDTO.Post userDto) {
-        Optional<User> user = userRepository.findByNickName(userDto.getNickName());
-        if (user.isPresent()) {
-            verifiedMyPhone(userDto, user);
-        }
-    }
-
-    public void checkDisplayName(UserDTO.Post userDto) {
-        Optional<User> user = userRepository.findByNickName(userDto.getPhone());
-        if (user.isPresent()) {
-            verifiedMyDisplayName(userDto, user);
-        }
-    }
-
-    private void verifiedMyPhone(UserDTO.Post userDto, Optional<User> user) {
-        if (Objects.equals(user.get().getEmail(), userDto.getEmail())) return;
-        existDisplayName(userDto.getNickName());
-    }
-
-    private void verifiedMyDisplayName(UserDTO.Post userDto, Optional<User> user) {
-        if (Objects.equals(user.get().getEmail(), userDto.getEmail())) return;
-        existPhoneNum(userDto.getPhone());
-    }
+//    public void filterMoreInfo(UserDTO.PostMoreInfo user) {
+//        existDisplayName(user.getNickName());
+//        existPhoneNum(user.getPhone());
+//    }
+//
+//    public void filterUpdateUser(UserDTO.Post userDto) {
+//        checkPhone(userDto);
+//        checkDisplayName(userDto);
+//    }
+//
+//    public void checkPhone(UserDTO.Post userDto) {
+//        Optional<User> user = userRepository.findByNickName(userDto.getNickName());
+//        if (user.isPresent()) {
+//            verifiedMyPhone(userDto, user);
+//        }
+//    }
+//
+//    public void checkDisplayName(UserDTO.Post userDto) {
+//        Optional<User> user = userRepository.findByNickName(userDto.getPhone());
+//        if (user.isPresent()) {
+//            verifiedMyDisplayName(userDto, user);
+//        }
+//    }
+//
+//    private void verifiedMyPhone(UserDTO.Post userDto, Optional<User> user) {
+//        if (Objects.equals(user.get().getEmail(), userDto.getEmail())) return;
+//        existDisplayName(userDto.getNickName());
+//    }
+//
+//    private void verifiedMyDisplayName(UserDTO.Post userDto, Optional<User> user) {
+//        if (Objects.equals(user.get().getEmail(), userDto.getEmail())) return;
+//        existPhoneNum(userDto.getPhone());
+//    }
 }
