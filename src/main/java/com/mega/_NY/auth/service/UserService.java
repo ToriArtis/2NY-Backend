@@ -32,12 +32,34 @@ public class UserService {
 
     public User joinUser( User user ){
         existEmail(user.getEmail());
-        existDisplayName(user.getNickName());
+//        existDisplayName(user.getNickName());
         encodePassword(user);
         existPhoneNum(user.getPhone());
         createRole(user);
         userRepository.save(user);
         return user;
+    }
+    
+    // 로그인 로직
+    public User getByCredentials(final String email, final String password) {
+        // 주어진 이메일을 사용하여 사용자 정보를 데이터베이스에서 조회
+
+        log.info("getByCredentials");
+        log.info(password);
+        final User onlineUser = userRepository.findByEmail(email).orElseThrow();
+
+        log.info("user : "+onlineUser);
+        log.info("sss"+passwordEncoder.matches(password, onlineUser.getPassword()) );
+        // 사용자가 존재하고 비밀번호가 일치하는지 확인
+        if (onlineUser != null && passwordEncoder.matches(password, onlineUser.getPassword())) {
+
+            // 비밀번호가 일치하면 사용자 객체를 반환
+            log.info("password : "+onlineUser.getPassword());
+            return onlineUser;
+        }
+
+        // 비밀번호가 일치하지 않으면 null 반환
+        return null;
     }
 
     private User createRole( User user ){
@@ -58,10 +80,10 @@ public class UserService {
         return user;
     }
 
-    private void existDisplayName( String nickName ){
-        Optional<User> user = userRepository.findByNickName(nickName);
-        if(user.isPresent()) throw new BusinessLogicException(ExceptionCode.EXIST_DISPLAY_NAME);
-    }
+//    private void existDisplayName( String nickName ){
+//        Optional<User> user = userRepository.findByNickName(nickName);
+//        if(user.isPresent()) throw new BusinessLogicException(ExceptionCode.EXIST_DISPLAY_NAME);
+//    }
 
     private void existEmail( String email ){
         Optional<User> user = userRepository.findByEmail(email);
@@ -90,24 +112,4 @@ public class UserService {
         return loginUser;
     }
 
-    public User updateUser( UserDTO.Post userDto ){
-        User loginUser = getLoginUser();
-        encodePassword(loginUser);
-        loginUser.setAddress(userDto.getAddress());
-        loginUser.setPhone(userDto.getPhone());
-        loginUser.setRealName(userDto.getRealName());
-        loginUser.setNickName(userDto.getNickName());
-        return loginUser;
-    }
-
-    public User updateOAuthInfo( UserDTO.PostMoreInfo userDto ){
-        User loginUser = getLoginUser();
-        loginUser.setUserStatus(UserStatus.USER_ACTIVE);
-        loginUser.setAddress(userDto.getAddress());
-        loginUser.setRealName(userDto.getRealName());
-        loginUser.setPhone(userDto.getPhone());
-        loginUser.setNickName(userDto.getNickName());
-        loginUser.setCreatedAt(LocalDateTime.now());
-        return loginUser;
-    }
 }

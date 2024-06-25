@@ -48,8 +48,6 @@ public class User  implements Principal{
     @Column(name = "phone")
     private String phone;
 
-
-
     @Column(name = "provider")
     private String provider;
 
