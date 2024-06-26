@@ -2,6 +2,7 @@ package com.mega._NY.item.service;
 
 import com.mega._NY.item.dto.ItemDTO;
 import com.mega._NY.item.entity.Item;
+import com.mega._NY.item.entity.ItemColor;
 import com.mega._NY.item.mapper.ItemMapper;
 import com.mega._NY.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,8 @@ public class ItemService {
         item.setDiscountPrice(itemDTO.getDiscountPrice());
         item.setDiscountRate(itemDTO.getDiscountRate());
         item.setSales(itemDTO.getSales());
+        item.setColor(itemDTO.getColor());  // ItemColor enum을 직접 설정
+        item.setSize(itemDTO.getSize());
 
         return itemMapper.toDTO(item);
     }
@@ -67,5 +70,43 @@ public class ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다. itemId=" + itemId));
         itemRepository.delete(item);
+    }
+
+    // ItemColor enum을 String으로 변환하는 유틸리티 메서드 (필요한 경우)
+    private String colorToString(ItemColor color) {
+        return color != null ? color.name() : null;
+    }
+
+    // String을 ItemColor enum으로 변환하는 유틸리티 메서드 (필요한 경우)
+    private ItemColor stringToColor(String colorString) {
+        try {
+            return colorString != null ? ItemColor.valueOf(colorString.toUpperCase()) : null;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 색상입니다: " + colorString);
+        }
+    }
+
+    // 제목으로 검색
+    @Transactional(readOnly = true)
+    public List<ItemDTO> searchByTitle(String title) {
+        return itemRepository.findByTitleContainingIgnoreCase(title).stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 내용으로 검색
+    @Transactional(readOnly = true)
+    public List<ItemDTO> searchByContent(String content) {
+        return itemRepository.findByContentContainingIgnoreCase(content).stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 제목 또는 내용으로 검색
+    @Transactional(readOnly = true)
+    public List<ItemDTO> searchByTitleOrContent(String keyword) {
+        return itemRepository.findByTitleOrContentContainingIgnoreCase(keyword).stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }
