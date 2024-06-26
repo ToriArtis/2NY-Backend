@@ -32,8 +32,8 @@ public class CartService {
 
     // 현재 사용자의 장바구니 찾기
     public Cart findMyCart() {
-        User user = userService.getLoginUser();
-        return cartRepository.findByUser(user);
+        Long userId = userService.getLoginUser().getId();
+        return cartRepository.findByUserId(userId);
     }
 
     // 현재 사용자의 장바구니 DTO 반환

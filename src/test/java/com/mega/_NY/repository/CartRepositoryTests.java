@@ -22,20 +22,15 @@ public class CartRepositoryTests {
     public void testSaveCart() {
         User user = new User();
         user.setEmail("test100@naver.com");
-
-        // User를 먼저 저장
         User savedUser = userRepository.save(user);
 
         Cart cart = new Cart();
-        cart.setUser(savedUser);  // 이 부분에서 양방향 관계가 설정됩니다.
+        cart.setUserId(savedUser.getId());  // UserId 설정
 
         Cart savedCart = cartRepository.save(cart);
 
-        // User를 다시 저장하여 Cart ID를 반영  + 추가된 부분 (추가 후 user에 cart_id 잘 들어감)
-        userRepository.save(savedUser);
+        Cart foundCart = cartRepository.findByUserId(savedUser.getId());
 
-        System.out.println("Saved Cart ID: " + savedCart.getCartId());
-        System.out.println("User's Cart ID: " + savedUser.getCart().getCartId());
     }
 
 }

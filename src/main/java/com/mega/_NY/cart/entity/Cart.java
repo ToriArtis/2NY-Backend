@@ -18,6 +18,9 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartId;
 
+    @Column(name = "USER_ID", unique = true)
+    private Long userId;
+
     @Column
     @Setter
     private int totalItems;
@@ -30,20 +33,26 @@ public class Cart {
     @Setter
     private int totalDiscountPrice;
 
-    @OneToOne
-    @JoinColumn(name = "USER_ID")
+    // User에 대한 단방향 일대일 관계 (옵션)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
     private User user;
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    // setUser 메서드 수정
+    public void setUser(User user) {
+        if (user != null) {
+            this.userId = user.getId();
+            this.user = user;
+        }
+    }
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.PERSIST)
     @Builder.Default
     List<ItemCart> itemCarts = new ArrayList<>();
-
-    public void setUser(User user) {
-        this.user = user;
-        if (user != null && user.getCart() != this) {
-            user.setCart(this);
-        }
-    }
 
     // 장바구니에 상품 추가
     public void addItemCart(ItemCart itemCart) {
@@ -54,9 +63,9 @@ public class Cart {
     }
 
     // 새 장바구니 생성 (사용자당 하나의 장바구니)
-    public static Cart createCart(User user) {
+    public static Cart createCart(Long userId) {
         Cart cart = new Cart();
-        cart.setUser(user);  // 이 메서드 내에서 user.setCart(cart)도 호출됩니다.
+        cart.setUserId(userId);
         return cart;
     }
 
