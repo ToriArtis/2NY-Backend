@@ -40,11 +40,35 @@ public class ItemOrdersService {
         return itemOrderRepository.save(itemOrder);
     }
 
-    // 주문 항목들의 총 가격 계산
-    public int calculateTotalPrice(List<ItemOrders> itemOrders) {
-        return itemOrders.stream()
-                .mapToInt(io -> io.getQuantity() * io.getItem().getPrice())
-                .sum();
+    public int calculateTotalPrice( List<ItemOrders> itemOrders ){
+
+        if(itemOrders == null) return 0;
+
+        int totalPrice = 0;
+
+        for(ItemOrders itemOrder : itemOrders){
+            int quantity = itemOrder.getQuantity();
+            int price = itemOrder.getItem().getPrice();
+            totalPrice += ( quantity * price );
+        }
+
+        return totalPrice;
+    }
+
+    public int calculateDiscountTotalPrice( List<ItemOrders> itemOrders ){
+
+        if(itemOrders == null) return 0;
+
+        int totalDiscountPrice = 0;
+
+        for(ItemOrders itemOrder : itemOrders){
+            int quantity = itemOrder.getQuantity();
+            int price = itemOrder.getItem().getPrice();
+            int discountRate = itemOrder.getItem().getDiscountRate();
+            totalDiscountPrice += ( quantity * price * discountRate / 100 );
+        }
+
+        return totalDiscountPrice;
     }
 
     // 아이템 판매량 업데이트

@@ -1,11 +1,9 @@
 package com.mega._NY.cart.service;
 
-import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.dto.CartDTO;
-import com.mega._NY.cart.dto.ItemCartDTO;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.mapper.CartMapper;
 import com.mega._NY.cart.repository.CartRepository;
@@ -14,7 +12,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @Transactional

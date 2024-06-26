@@ -85,18 +85,34 @@ public class ItemCartService {
     }
 
     private int calculateTotalPrice(List<ItemCartDTO> itemCarts) {
-        return itemCarts.stream()
-                .mapToInt(ic -> ic.getPrice() * ic.getQuantity())
-                .sum();
+        if(itemCarts == null) return 0;
+
+        int totalPrice = 0;
+
+        for(ItemCartDTO itemCart : itemCarts) {
+            int quantity = itemCart.getQuantity();
+            int price = itemCart.getPrice();
+            totalPrice += (quantity * price);
+        }
+
+        return totalPrice;
     }
 
     private int calculateTotalDiscountPrice(List<ItemCartDTO> itemCarts) {
-        return itemCarts.stream()
-                .mapToInt(ic -> {
-                    int discountPrice = ic.getPrice() * (100 - ic.getDiscountRate()) / 100;
-                    return discountPrice * ic.getQuantity();
-                })
-                .sum();
+        if(itemCarts == null) return 0;
+
+        int totalDiscountPrice = 0;
+
+        for(ItemCartDTO itemCart : itemCarts) {
+            int quantity = itemCart.getQuantity();
+            int price = itemCart.getPrice();
+            int discountRate = itemCart.getDiscountRate();
+
+            totalDiscountPrice += (quantity * price * discountRate/100);
+        }
+
+        return totalDiscountPrice;
+
     }
 
     // 장바구니에 담긴 상품 수

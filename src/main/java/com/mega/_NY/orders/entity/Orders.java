@@ -25,8 +25,8 @@ public class Orders {
     @Column(nullable = false)
     private String address;
 
-//    @Column(nullable = false)
-//    private String detailAddress;
+    @Column(nullable = false)
+    private String detailAddress;
 
     @Column(nullable = false)
     private String phone;
@@ -35,12 +35,25 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
+    @Column
+    @Setter
+    private Integer totalItems; // 주문에 포함된 아이템 종류
+
+    @Column
+    @Setter
+    private Integer totalPrice;
+
+    @Column
+    @Setter
+    private Integer totalDiscountPrice;
+
+    @Column
+    @Setter
+    private Integer expectPrice; // 실제 결제 금액 (정가 - 할인가)
+
     @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User user;
-
-    // 주문 총 금액
-    private int totalPrice;
 
     // 주문에 포함된 상품 목록
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
