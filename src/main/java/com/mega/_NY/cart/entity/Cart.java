@@ -31,6 +31,7 @@ public class Cart {
     private int totalDiscountPrice;
 
     @OneToOne
+    @JoinColumn(name = "USER_ID")
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.PERSIST)
@@ -39,6 +40,9 @@ public class Cart {
 
     public void setUser(User user) {
         this.user = user;
+        if (user != null && user.getCart() != this) {
+            user.setCart(this);
+        }
     }
 
     // 장바구니에 상품 추가
@@ -52,8 +56,7 @@ public class Cart {
     // 새 장바구니 생성 (사용자당 하나의 장바구니)
     public static Cart createCart(User user) {
         Cart cart = new Cart();
-        cart.user = user;
-        user.setCart(cart);
+        cart.setUser(user);  // 이 메서드 내에서 user.setCart(cart)도 호출됩니다.
         return cart;
     }
 

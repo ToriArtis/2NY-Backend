@@ -2,25 +2,21 @@ package com.mega._NY.service;
 
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.repository.UserRepository;
-import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.repository.CartRepository;
 import com.mega._NY.cart.service.CartService;
-import com.mega._NY.cart.service.ItemCartService;
 import io.jsonwebtoken.lang.Assert;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
 
 
 @Slf4j
 @SpringBootTest
-@Transactional
+//@Transactional
 public class CartServiceTests {
 
     @Autowired
@@ -28,9 +24,6 @@ public class CartServiceTests {
 
     @Autowired
     private CartRepository cartRepository;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
@@ -73,7 +66,7 @@ public class CartServiceTests {
     @Test
     public void testRefreshCart() {
         // 장바구니 정보를 갱신하는 테스트
-        Cart cart = new Cart();
+        Cart cart = cartRepository.findById(1L).orElse(null);
         cart = cartRepository.save(cart);
         cartService.refreshCart(cart.getCartId());
 

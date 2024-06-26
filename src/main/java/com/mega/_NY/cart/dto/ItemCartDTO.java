@@ -1,7 +1,5 @@
 package com.mega._NY.cart.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Getter

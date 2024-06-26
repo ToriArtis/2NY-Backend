@@ -74,6 +74,14 @@ public class User  implements Principal{
     }
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @JoinColumn(name = "CART_ID")
     private Cart cart;
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
+        if (cart != null && cart.getUser() != this) {
+            cart.setUser(this);
+        }
+    }
 
 }
