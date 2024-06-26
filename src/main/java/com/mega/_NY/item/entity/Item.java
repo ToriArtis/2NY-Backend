@@ -2,6 +2,7 @@ package com.mega._NY.item.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
@@ -40,6 +41,12 @@ public class Item {
 
     @Column
     private int sales; // 상품 판매된 횟수
+
+    @Column
+    private int size; // 옷 사이즈
+
+    @Column
+    private int color; // 옷 색상
 
     @Column
     private LocalDateTime createdAt; // 최초 생성 시간

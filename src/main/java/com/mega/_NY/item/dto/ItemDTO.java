@@ -20,7 +20,8 @@ public class ItemDTO {
     private String content;
     private int sales;
     private int price;
-    private int servingSize;
+    private String size;
+    private String color;
     private int discountRate;
     private int discountPrice;
     private LocalDateTime createdAt;
