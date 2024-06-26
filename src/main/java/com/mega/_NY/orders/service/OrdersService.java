@@ -55,8 +55,8 @@ public class OrdersService {
     }
 
     // 사용자의 주문 목록 조회 (페이지네이션)
-    public Page<Orders> findOrders(User user, int page, int size) {
-        return orderRepository.findAllByUser(user, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderId")));
+    public Page<Orders> findOrders(Long userId, int page, int size) {
+        return orderRepository.findAllByUserId(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderId")));
     }
 
 }

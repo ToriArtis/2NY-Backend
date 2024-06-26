@@ -37,11 +37,10 @@ public class CartServiceTests {
             log.info("테스트를 위한 기존 사용자가 없습니다.");
             throw new RuntimeException("테스트를 위한 기존 사용자가 없습니다.");
         }
-        User existingUser = optionalUser.get();
-        log.info("Found existing user: {}", existingUser.getEmail());
+        Long existingUser = optionalUser.get().getId();
 
         // 사용자의 기존 카트 조회
-        Cart existingCart = cartRepository.findByUser(existingUser);
+        Cart existingCart = cartRepository.findByUserId(existingUser);
         if (existingCart == null) {
             log.info("사용자의 카트가 없습니다.");
             throw new RuntimeException("사용자의 카트가 없습니다.");
@@ -49,7 +48,7 @@ public class CartServiceTests {
         log.info("Found existing cart with ID: {}", existingCart.getCartId());
 
         // 사용자로 장바구니 조회
-        Cart foundCart = cartRepository.findByUser(existingUser);
+        Cart foundCart = cartRepository.findByUserId(existingUser);
         log.info("Found cart by user: {}", foundCart != null ? foundCart.getCartId() : "null");
 
         // 조회된 장바구니가 null이 아닌지 확인

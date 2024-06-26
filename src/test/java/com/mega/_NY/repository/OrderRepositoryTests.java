@@ -4,6 +4,7 @@ import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.entity.ItemCart;
+import com.mega._NY.cart.repository.CartRepository;
 import com.mega._NY.cart.repository.ItemCartRepository;
 import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.entity.OrderStatus;
@@ -35,6 +36,8 @@ public class OrderRepositoryTests {
 
     @Autowired
     private ItemOrdersService itemOrdersService;
+    @Autowired
+    private CartRepository cartRepository;
 
     @Test
     public void testCreateOrder() {
@@ -43,7 +46,7 @@ public class OrderRepositoryTests {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // 사용자의 카트 조회
-        Cart cart = user.getCart();
+        Cart cart = cartRepository.findByUserId(user.getId());
         if (cart == null) {
             throw new RuntimeException("Cart not found for user");
         }

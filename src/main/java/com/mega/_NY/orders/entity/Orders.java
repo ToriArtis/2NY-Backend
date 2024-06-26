@@ -51,8 +51,13 @@ public class Orders {
     @Setter
     private Integer expectPrice; // 실제 결제 금액 (정가 - 할인가)
 
-    @ManyToOne
-    @JoinColumn(name = "USER_ID")
+
+    @Column(name = "userId")
+    private Long userId;
+
+    // User에 대한 단방향 관계 (옵션)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", insertable = false, updatable = false)
     private User user;
 
     // 주문에 포함된 상품 목록
@@ -65,5 +70,11 @@ public class Orders {
     @Column
     private LocalDateTime updatedAt;
 
+    public void setUser(User user) {
+        if (user != null) {
+            this.userId = user.getId();
+            this.user = user;
+        }
+    }
 
 }

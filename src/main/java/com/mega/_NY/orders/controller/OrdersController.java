@@ -45,8 +45,8 @@ public class OrdersController {
     @GetMapping
     public ResponseEntity<Page<OrdersDTO>> getOrders(@RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "10") int size) {
-        User user = userService.getLoginUser();
-        Page<Orders> orders = ordersService.findOrders(user, page, size);
+        Long userId = userService.getLoginUser().getId();
+        Page<Orders> orders = ordersService.findOrders(userId, page, size);
         return ResponseEntity.ok(orders.map(ordersMapper::orderToOrdersDTO));
     }
 
