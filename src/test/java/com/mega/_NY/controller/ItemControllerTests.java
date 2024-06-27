@@ -49,7 +49,7 @@ public class ItemControllerTests {
         itemDTO.setSales(0);                                 // 판매량
         itemDTO.setColor(ItemColor.BLACK);                   // 옷 색상
         itemDTO.setSize(ItemSize.L);                         // 옷 사이즈 (int가 아닌 string) // ex) S , M , L, XL
-        itemDTO.setCategory(ItemCategory.TOP);
+        itemDTO.setCategory(ItemCategory.TOP);               // 제품 카테고리
     }
 
     @Test
@@ -65,9 +65,9 @@ public class ItemControllerTests {
                 .andExpect(jsonPath("$.price").value(itemDTO.getPrice()))
                 .andExpect(jsonPath("$.discountPrice").value(itemDTO.getDiscountPrice()))
                 .andExpect(jsonPath("$.discountRate").value(itemDTO.getDiscountRate()))
-                .andExpect(jsonPath("$.color").value(itemDTO.getDiscountRate()))
-                .andExpect(jsonPath("$.size").value(itemDTO.getDiscountRate()))
-                .andExpect(jsonPath("$.category").value(itemDTO.getDiscountRate()));
+                .andExpect(jsonPath("$.color").value(itemDTO.getColor().name()))
+                .andExpect(jsonPath("$.size").value(itemDTO.getSize().name()))
+                .andExpect(jsonPath("$.category").value(itemDTO.getCategory().name()));
 
     }
 
@@ -84,6 +84,7 @@ public class ItemControllerTests {
                 .sales(itemDTO.getSales())
                 .color(itemDTO.getColor())
                 .size(itemDTO.getSize())
+                .category(itemDTO.getCategory())
                 .build());
 
         mockMvc.perform(get("/items/{itemId}", savedItem.getItemId()))
@@ -92,7 +93,10 @@ public class ItemControllerTests {
                 .andExpect(jsonPath("$.content").value(itemDTO.getContent()))
                 .andExpect(jsonPath("$.price").value(itemDTO.getPrice()))
                 .andExpect(jsonPath("$.discountPrice").value(itemDTO.getDiscountPrice()))
-                .andExpect(jsonPath("$.discountRate").value(itemDTO.getDiscountRate()));
+                .andExpect(jsonPath("$.color").value(itemDTO.getColor().name()))
+                .andExpect(jsonPath("$.size").value(itemDTO.getSize().name()))
+                .andExpect(jsonPath("$.category").value(itemDTO.getCategory().name()));
+
     }
 
     @Test
@@ -106,6 +110,9 @@ public class ItemControllerTests {
                 .discountPrice(itemDTO.getDiscountPrice())
                 .discountRate(itemDTO.getDiscountRate())
                 .sales(itemDTO.getSales())
+                .color(itemDTO.getColor())
+                .size(itemDTO.getSize())
+                .category(itemDTO.getCategory())
                 .build());
 
         ItemDTO updatedItemDTO = new ItemDTO();
@@ -114,6 +121,10 @@ public class ItemControllerTests {
         updatedItemDTO.setPrice(2000);
         updatedItemDTO.setDiscountPrice(1800);
         updatedItemDTO.setDiscountRate(20);
+        updatedItemDTO.setColor(ItemColor.WHITE);
+        updatedItemDTO.setSize(ItemSize.M);
+        updatedItemDTO.setCategory(ItemCategory.DRESS);
+
 
         String content = objectMapper.writeValueAsString(updatedItemDTO);
 
@@ -125,7 +136,10 @@ public class ItemControllerTests {
                 .andExpect(jsonPath("$.content").value(updatedItemDTO.getContent()))
                 .andExpect(jsonPath("$.price").value(updatedItemDTO.getPrice()))
                 .andExpect(jsonPath("$.discountPrice").value(updatedItemDTO.getDiscountPrice()))
-                .andExpect(jsonPath("$.discountRate").value(updatedItemDTO.getDiscountRate()));
+                .andExpect(jsonPath("$.discountRate").value(updatedItemDTO.getDiscountRate()))
+                .andExpect(jsonPath("$.color").value(itemDTO.getColor().name()))
+                .andExpect(jsonPath("$.size").value(itemDTO.getSize().name()))
+                .andExpect(jsonPath("$.category").value(itemDTO.getCategory().name()));
     }
 
     @Test
@@ -139,6 +153,7 @@ public class ItemControllerTests {
                 .discountPrice(itemDTO.getDiscountPrice())
                 .discountRate(itemDTO.getDiscountRate())
                 .sales(itemDTO.getSales())
+                .category((itemDTO.getCategory()))
                 .build());
 
         mockMvc.perform(delete("/items/{itemId}", savedItem.getItemId()))
