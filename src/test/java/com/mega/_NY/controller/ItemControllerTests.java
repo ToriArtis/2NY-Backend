@@ -3,6 +3,8 @@ package com.mega._NY.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mega._NY.item.dto.ItemDTO;
 import com.mega._NY.item.entity.Item;
+import com.mega._NY.item.entity.ItemColor;
+import com.mega._NY.item.entity.ItemSize;
 import com.mega._NY.item.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,15 +38,17 @@ public class ItemControllerTests {
     @BeforeEach
     void setUp() {
         itemDTO = new ItemDTO();
-        itemDTO.setTitle("Test Item");
-        itemDTO.setContent("Test Content");
-        itemDTO.setThumbnail("test_thumbnail.jpg");
-        itemDTO.setDescriptionImage("test_description.jpg");
-        itemDTO.setPrice(1000);
-        itemDTO.setDiscountPrice(900);
-        itemDTO.setDiscountRate(10);
-        itemDTO.setSales(0);
-    }
+        itemDTO.setTitle("Test Item");                       // 상품 제목
+        itemDTO.setContent("Test Content");                  // 상품 본문
+        itemDTO.setThumbnail("test_thumbnail.jpg");          // 썸네일 이미지 경로
+        itemDTO.setDescriptionImage("test_description.jpg"); // 제품 상세이미지 경로
+        itemDTO.setPrice(1000);                              // 가격
+        itemDTO.setDiscountPrice(900);                       // 할인 된 가격
+        itemDTO.setDiscountRate(10);                         // 할인율
+        itemDTO.setSales(0);                                 // 판매량
+        itemDTO.setColor(ItemColor.BLACK);                   // 옷 색상
+        itemDTO.setSize(ItemSize.L);                         // 옷 사이즈 (int가 아닌 string)
+    }                                                        // ex) S , M , L, XL
 
     @Test
     void createItem() throws Exception {
