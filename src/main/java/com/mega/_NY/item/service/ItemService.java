@@ -60,6 +60,7 @@ public class ItemService {
         item.setSales(itemDTO.getSales());
         item.setColor(itemDTO.getColor());  // ItemColor enum을 직접 설정
         item.setSize(itemDTO.getSize());
+        item.setCategory(itemDTO.getCategory());
 
         return itemMapper.toDTO(item);
     }

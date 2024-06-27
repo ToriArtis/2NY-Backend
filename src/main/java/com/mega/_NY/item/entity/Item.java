@@ -49,6 +49,10 @@ public class Item {
     @Column
     private ItemColor color;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private ItemCategory category;
+
     @Column
     private LocalDateTime createdAt;
 
@@ -68,6 +72,7 @@ public class Item {
         this.sales = sales;
         this.size = size;
         this.color = color;
+        this.category = category;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

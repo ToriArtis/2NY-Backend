@@ -1,5 +1,6 @@
 package com.mega._NY.item.dto;
 
+import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
 import com.mega._NY.item.entity.ItemSize;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class ItemDTO {
     private int price;
     private ItemSize size;
     private ItemColor color;
+    private ItemCategory category;
     private int discountRate;
     private int discountPrice;
     private LocalDateTime createdAt;

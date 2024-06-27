@@ -3,6 +3,7 @@ package com.mega._NY.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mega._NY.item.dto.ItemDTO;
 import com.mega._NY.item.entity.Item;
+import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
 import com.mega._NY.item.entity.ItemSize;
 import com.mega._NY.item.repository.ItemRepository;
@@ -47,8 +48,9 @@ public class ItemControllerTests {
         itemDTO.setDiscountRate(10);                         // 할인율
         itemDTO.setSales(0);                                 // 판매량
         itemDTO.setColor(ItemColor.BLACK);                   // 옷 색상
-        itemDTO.setSize(ItemSize.L);                         // 옷 사이즈 (int가 아닌 string)
-    }                                                        // ex) S , M , L, XL
+        itemDTO.setSize(ItemSize.L);                         // 옷 사이즈 (int가 아닌 string) // ex) S , M , L, XL
+        itemDTO.setCategory(ItemCategory.TOP);
+    }
 
     @Test
     void createItem() throws Exception {
@@ -62,7 +64,11 @@ public class ItemControllerTests {
                 .andExpect(jsonPath("$.content").value(itemDTO.getContent()))
                 .andExpect(jsonPath("$.price").value(itemDTO.getPrice()))
                 .andExpect(jsonPath("$.discountPrice").value(itemDTO.getDiscountPrice()))
-                .andExpect(jsonPath("$.discountRate").value(itemDTO.getDiscountRate()));
+                .andExpect(jsonPath("$.discountRate").value(itemDTO.getDiscountRate()))
+                .andExpect(jsonPath("$.color").value(itemDTO.getDiscountRate()))
+                .andExpect(jsonPath("$.size").value(itemDTO.getDiscountRate()))
+                .andExpect(jsonPath("$.category").value(itemDTO.getDiscountRate()));
+
     }
 
     @Test
@@ -76,6 +82,8 @@ public class ItemControllerTests {
                 .discountPrice(itemDTO.getDiscountPrice())
                 .discountRate(itemDTO.getDiscountRate())
                 .sales(itemDTO.getSales())
+                .color(itemDTO.getColor())
+                .size(itemDTO.getSize())
                 .build());
 
         mockMvc.perform(get("/items/{itemId}", savedItem.getItemId()))
