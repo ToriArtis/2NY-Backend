@@ -10,6 +10,7 @@ import com.mega._NY.orders.mapper.ItemOrdersMapper;
 import com.mega._NY.orders.mapper.OrdersMapper;
 import com.mega._NY.orders.service.OrdersService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,11 +34,20 @@ public class OrdersController {
     private final OrdersMapper ordersMapper;
 
     // 새로운 주문 생성
-    @PostMapping
-    public ResponseEntity<OrdersDTO> createOrder(@RequestBody @Valid List<ItemOrderDTO> itemOrderDtos) {
+    @PostMapping("/{item-id}")
+    public ResponseEntity<OrdersDTO> createOrder(@RequestBody @Valid List<ItemOrderDTO> itemOrderDtos,
+                                                 @PathVariable("item-id") @Positive Long itemId) {
         User user = userService.getLoginUser();
         List<ItemOrders> itemOrders = itemOrdersMapper.itemOrderDtosToItemOrders(itemOrderDtos);
         Orders order = ordersService.createOrder(itemOrders, user);
+        return ResponseEntity.ok(ordersMapper.orderToOrdersDTO(order));
+    }
+
+    // 장바구니에서 주문 생성
+    @PostMapping("/from-cart")
+    public ResponseEntity<OrdersDTO> createOrderFromCart() {
+        User user = userService.getLoginUser();
+        Orders order = ordersService.createOrderFromCart(user);
         return ResponseEntity.ok(ordersMapper.orderToOrdersDTO(order));
     }
 

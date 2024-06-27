@@ -3,6 +3,8 @@ package com.mega._NY.orders.service;
 import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.entity.User;
+import com.mega._NY.cart.entity.Cart;
+import com.mega._NY.cart.service.CartService;
 import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.entity.OrderStatus;
 import com.mega._NY.orders.entity.Orders;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -23,6 +26,7 @@ public class OrdersService {
 
     private final OrdersRepository orderRepository;
     private final ItemOrdersService itemOrdersService;
+    private final CartService cartService;
 
     // 새로운 주문 생성
     public Orders createOrder(List<ItemOrders> itemOrders, User user) {
@@ -36,6 +40,44 @@ public class OrdersService {
             io.setOrders(order);
             itemOrdersService.updateItemSales(io, true);
         });
+
+        return orderRepository.save(order);
+    }
+
+    public Orders createOrderFromCart(User user) {
+        Cart cart = cartService.findVerifiedCart(user.getId());
+        if (cart.getItemCarts().isEmpty()) {
+            throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
+        }
+
+        List<ItemOrders> itemOrders = cart.getItemCarts().stream()
+                .map(cartItem -> {
+                    ItemOrders itemOrder = new ItemOrders();
+                    itemOrder.setItem(cartItem.getItem());
+                    itemOrder.setQuantity(cartItem.getQuantity());
+                    return itemOrder;
+                })
+                .collect(Collectors.toList());
+
+        Orders order = new Orders();
+        order.setItemOrders(itemOrders);
+        order.setUser(user);
+        order.setOrderStatus(OrderStatus.ORDER_REQUEST);
+        order.setTotalPrice(itemOrdersService.calculateTotalPrice(itemOrders));
+        order.setTotalDiscountPrice(itemOrdersService.calculateDiscountTotalPrice(itemOrders));
+
+        int totalPrice = itemOrdersService.calculateTotalPrice(itemOrders);
+        int totalDiscountPrice = itemOrdersService.calculateDiscountTotalPrice(itemOrders);
+        order.setExpectPrice(totalPrice - totalDiscountPrice);
+
+        itemOrders.forEach(io -> {
+            io.setOrders(order);
+            itemOrdersService.createItemOrder(io);
+            itemOrdersService.updateItemSales(io, true);
+        });
+
+        // 주문 생성 후 카트 비우기
+        cartService.clearCart(user);
 
         return orderRepository.save(order);
     }

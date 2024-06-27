@@ -23,10 +23,20 @@ public class CartService {
     private final CartMapper cartMapper;
     private final ItemCartService itemCartService;
 
+    // 장바구니 생성
+    public Cart createCart(User user) {
+        Cart cart = new Cart();
+        cart.setUser(user);
+        return cartRepository.save(cart);
+    }
+
     // 장바구니 정보 갱신
     public void refreshCart(long cartId) {
         Cart cart = findVerifiedCart(cartId);
         itemCartService.updateCartTotals(cart);
+        cart.setTotalPrice(cart.getTotalPrice());
+        cart.setTotalDiscountPrice(cart.getTotalDiscountPrice());
+        cart.setTotalItems(cart.getTotalItems());
         cartRepository.save(cart);
     }
 
@@ -46,5 +56,19 @@ public class CartService {
         return EntityUtils.findVerifiedEntity(cartRepository, cartId, ExceptionCode.CART_NOT_FOUND);
     }
 
+    // 장바구니 비우기
+    public void clearCart(User user) {
+        Cart cart = findMyCart();
+        if (cart != null) {
+            // ItemCart 엔티티들을 모두 제거
+            itemCartService.removeAllItemCartsFromCart(cart);
+
+            // Cart 엔티티 업데이트
+            cart.setTotalPrice(0);
+            cart.setTotalDiscountPrice(0);
+            cart.setTotalItems(0);
+            cartRepository.save(cart);
+        }
+    }
 
 }
