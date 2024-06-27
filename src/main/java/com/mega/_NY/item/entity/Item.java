@@ -41,8 +41,9 @@ public class Item {
     @Column
     private int sales;
 
+    @Enumerated(EnumType.STRING)
     @Column
-    private int size;
+    private ItemSize size;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -56,7 +57,7 @@ public class Item {
 
     @Builder
     public Item(String title, String content, String thumbnail, String descriptionImage,
-                int price, int discountPrice, int discountRate, int sales, int size, ItemColor color) {
+                int price, int discountPrice, int discountRate, int sales, ItemSize size, ItemColor color) {
         this.title = title;
         this.content = content;
         this.thumbnail = thumbnail;

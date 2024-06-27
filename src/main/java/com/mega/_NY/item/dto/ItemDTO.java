@@ -1,6 +1,7 @@
 package com.mega._NY.item.dto;
 
 import com.mega._NY.item.entity.ItemColor;
+import com.mega._NY.item.entity.ItemSize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,8 +22,7 @@ public class ItemDTO {
     private String content;
     private int sales;
     private int price;
-    private int size;
-
+    private ItemSize size;
     private ItemColor color;
     private int discountRate;
     private int discountPrice;
