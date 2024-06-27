@@ -2,7 +2,9 @@ package com.mega._NY.item.service;
 
 import com.mega._NY.item.dto.ItemDTO;
 import com.mega._NY.item.entity.Item;
+import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
+import com.mega._NY.item.entity.ItemSize;
 import com.mega._NY.item.mapper.ItemMapper;
 import com.mega._NY.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -107,6 +109,60 @@ public class ItemService {
     @Transactional(readOnly = true)
     public List<ItemDTO> searchByTitleOrContent(String keyword) {
         return itemRepository.findByTitleOrContentContainingIgnoreCase(keyword).stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 카테고리별 상품 조회
+    @Transactional(readOnly = true)
+    public List<ItemDTO> getItemsByCategory(ItemCategory category) {
+        List<Item> items = itemRepository.findByCategory(category);
+        return items.stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 높은 가격순 조회
+    @Transactional(readOnly = true)
+    public List<ItemDTO> getItemsByPriceDesc() {
+        List<Item> items = itemRepository.findAllByOrderByPriceDesc();
+        return items.stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 낮은 가격순 조회
+    @Transactional(readOnly = true)
+    public List<ItemDTO> getItemsByPriceAsc() {
+        List<Item> items = itemRepository.findAllByOrderByPriceAsc();
+        return items.stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 색상 필터
+    @Transactional(readOnly = true)
+    public List<ItemDTO> getItemsByColor(ItemColor color) {
+        List<Item> items = itemRepository.findByColor(color);
+        return items.stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 사이즈 필터
+    @Transactional(readOnly = true)
+    public List<ItemDTO> getItemsBySize(ItemSize size) {
+        List<Item> items = itemRepository.findBySize(size);
+        return items.stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 색상&사이즈 필터
+    @Transactional(readOnly = true)
+    public List<ItemDTO> getItemsByColorAndSize(ItemColor color, ItemSize size) {
+        List<Item> items = itemRepository.findByColorAndSize(color, size);
+        return items.stream()
                 .map(itemMapper::toDTO)
                 .collect(Collectors.toList());
     }

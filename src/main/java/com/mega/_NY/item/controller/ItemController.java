@@ -1,6 +1,8 @@
 package com.mega._NY.item.controller;
 
 import com.mega._NY.item.dto.ItemDTO;
+import com.mega._NY.item.entity.ItemColor;
+import com.mega._NY.item.entity.ItemSize;
 import com.mega._NY.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -51,4 +53,39 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
+    // 높은 가격순으로 조회
+    @GetMapping("/price/desc")
+    public ResponseEntity<List<ItemDTO>> getItemsByPriceDesc() {
+        List<ItemDTO> itemDTOList = itemService.getItemsByPriceDesc();
+        return ResponseEntity.ok(itemDTOList);
+    }
+
+    // 낮은 가격순으로 조회
+    @GetMapping("/price/asc")
+    public ResponseEntity<List<ItemDTO>> getItemsByPriceAsc() {
+        List<ItemDTO> itemDTOList = itemService.getItemsByPriceAsc();
+        return ResponseEntity.ok(itemDTOList);
+    }
+
+
+    // 색상&사이즈 필터
+    @GetMapping("/filter")
+    public ResponseEntity<List<ItemDTO>> getItemsByFilter(
+            @RequestParam(required = false) ItemColor color,
+            @RequestParam(required = false) ItemSize size) {
+
+        List<ItemDTO> itemDTOList;
+
+        if (color != null && size != null) {
+            itemDTOList = itemService.getItemsByColorAndSize(color, size);
+        } else if (color != null) {
+            itemDTOList = itemService.getItemsByColor(color);
+        } else if (size != null) {
+            itemDTOList = itemService.getItemsBySize(size);
+        } else {
+            itemDTOList = itemService.getItems();
+        }
+
+        return ResponseEntity.ok(itemDTOList);
+    }
 }

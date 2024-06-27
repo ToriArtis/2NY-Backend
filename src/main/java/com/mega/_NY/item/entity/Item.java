@@ -61,7 +61,7 @@ public class Item {
 
     @Builder
     public Item(String title, String content, String thumbnail, String descriptionImage,
-                int price, int discountPrice, int discountRate, int sales, ItemSize size, ItemColor color) {
+                int price, int discountPrice, int discountRate, int sales, ItemSize size, ItemColor color, ItemCategory category) {
         this.title = title;
         this.content = content;
         this.thumbnail = thumbnail;
