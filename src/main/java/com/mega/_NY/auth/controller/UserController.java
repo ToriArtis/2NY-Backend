@@ -6,6 +6,8 @@ import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.UserService;
+import com.mega._NY.cart.entity.Cart;
+import com.mega._NY.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private TokenProvider tokenProvider;
+    @Autowired
+    private CartService cartService;
 
 
     @PostMapping("/signup")
@@ -41,7 +45,7 @@ public class UserController {
                     .email(registeredUser.getEmail())
                     .realName(registeredUser.getRealName())
                     .build();
-
+            cartService.createCart(registeredUser);
             return ResponseEntity.ok().body(responseUserDTO);
         }catch (Exception e){
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();

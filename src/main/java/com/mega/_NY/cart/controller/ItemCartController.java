@@ -25,36 +25,39 @@ public class ItemCartController {
     private final CartService cartService;
 
     // 장바구니에 상품 추가
-    @PostMapping("/{item-id}")
-    public ResponseEntity<ItemCartDTO> postItemCart(@Valid @RequestBody ItemCartDTO itemCartDTO,
+    @PostMapping("/{userId}/{item-id}")
+    public ResponseEntity<ItemCartDTO> postItemCart(@PathVariable("userId") Long userId, @Valid @RequestBody ItemCartDTO itemCartDTO,
                                                     @PathVariable("item-id") @Positive Long itemId) {
-        Cart cart = cartService.findMyCart();  // 현재 사용자의 Cart를 가져옵니다.
+        Cart cart = cartService.findVerifiedCart(userId);   // 현재 사용자의 Cart를 가져옵니다.
         ItemCartDTO createdItemCart = itemCartService.addItemCart(itemCartDTO, itemId, cart);
         cartService.refreshCart(cart.getCartId());
         return new ResponseEntity<>(createdItemCart, HttpStatus.CREATED);
     }
 
     // 장바구니 상품 수량 변경
-    @PatchMapping("/itemcarts/{itemcart-id}")
-    public ResponseEntity<ItemCartDTO> upDownItemCart(@PathVariable("itemcart-id") @Positive long itemCartId,
+    @PatchMapping("/{userId}/itemcarts/{itemcart-id}")
+    public ResponseEntity<ItemCartDTO> upDownItemCart(@PathVariable("userId") Long userId, @PathVariable("itemcart-id") @Positive long itemCartId,
                                                       @RequestParam(value="upDown") int upDown) {
+        Cart cart = cartService.findVerifiedCart(userId);   // 현재 사용자의 Cart를 가져옵니다.
         ItemCartDTO updatedItemCart = itemCartService.updownItemCart(itemCartId, upDown);
         cartService.refreshCart(updatedItemCart.getCartId());
         return new ResponseEntity<>(updatedItemCart, HttpStatus.OK);
     }
 
     // 장바구니 상품 구매 여부 변경
-    @PatchMapping("/itemcarts/exclude/{itemcart-id}")
-    public ResponseEntity<ItemCartDTO> excludeItemCart(@PathVariable("itemcart-id") @Positive long itemCartId,
+    @PatchMapping("/{userId}/itemcarts/exclude/{itemcart-id}")
+    public ResponseEntity<ItemCartDTO> excludeItemCart(@PathVariable("userId") Long userId, @PathVariable("itemcart-id") @Positive long itemCartId,
                                                        @RequestParam(value="buyNow", defaultValue = "false") boolean buyNow) {
+        Cart cart = cartService.findVerifiedCart(userId);   // 현재 사용자의 Cart를 가져옵니다.
         ItemCartDTO itemCart = itemCartService.excludeItemCart(itemCartId, buyNow);
         cartService.refreshCart(itemCart.getCartId());
         return new ResponseEntity<>(itemCart, HttpStatus.OK);
     }
 
     // 장바구니에서 상품 삭제
-    @DeleteMapping("/itemcarts/{itemcart-id}")
-    public ResponseEntity<Void> deleteItemCart(@PathVariable("itemcart-id") @Positive long itemCartId) {
+    @DeleteMapping("/{userId}/itemcarts/{itemcart-id}")
+    public ResponseEntity<Void> deleteItemCart(@PathVariable("userId") Long userId, @PathVariable("itemcart-id") @Positive long itemCartId) {
+        Cart cart = cartService.findVerifiedCart(userId);   // 현재 사용자의 Cart를 가져옵니다.
         long cartId = itemCartService.deleteItemCart(itemCartId);
         cartService.refreshCart(cartId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

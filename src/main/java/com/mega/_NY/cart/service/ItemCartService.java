@@ -123,4 +123,10 @@ public class ItemCartService {
     private ItemCart findVerifiedItemCart(long itemCartId) {
         return EntityUtils.findVerifiedEntity(itemCartRepository, itemCartId, ExceptionCode.ITEMCART_NOT_FOUND);
     }
+
+    // 장바구니의 모든 아이템 제거
+    public void removeAllItemCartsFromCart(Cart cart) {
+        List<ItemCart> itemCarts = itemCartRepository.findAllByCart(cart);
+        itemCartRepository.deleteAll(itemCarts);
+    }
 }
