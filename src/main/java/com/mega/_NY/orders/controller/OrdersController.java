@@ -1,6 +1,8 @@
 package com.mega._NY.orders.controller;
 
+import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.entity.User;
+import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.orders.dto.ItemOrderDTO;
 import com.mega._NY.orders.dto.OrdersDTO;
@@ -14,6 +16,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,33 +32,30 @@ import java.util.List;
 public class OrdersController {
 
     private final OrdersService ordersService;
-    private final UserService userService;
     private final ItemOrdersMapper itemOrdersMapper;
     private final OrdersMapper ordersMapper;
 
     // 새로운 주문 생성
-    @PostMapping("/{item-id}")
+    @PostMapping("/{userId}")
     public ResponseEntity<OrdersDTO> createOrder(@RequestBody @Valid List<ItemOrderDTO> itemOrderDtos,
-                                                 @PathVariable("item-id") @Positive Long itemId) {
-        User user = userService.getLoginUser();
+                                                 @PathVariable("userId") @Positive Long userId) {
         List<ItemOrders> itemOrders = itemOrdersMapper.itemOrderDtosToItemOrders(itemOrderDtos);
-        Orders order = ordersService.createOrder(itemOrders, user);
+        Orders order = ordersService.createOrder(itemOrders, userId);
         return ResponseEntity.ok(ordersMapper.orderToOrdersDTO(order));
     }
 
     // 장바구니에서 주문 생성
-    @PostMapping("/from-cart")
-    public ResponseEntity<OrdersDTO> createOrderFromCart() {
-        User user = userService.getLoginUser();
-        Orders order = ordersService.createOrderFromCart(user);
+    @PostMapping("/from-cart/{userId}")
+    public ResponseEntity<OrdersDTO> createOrderFromCart(@PathVariable("userId") @Positive Long userId) {
+        Orders order = ordersService.createOrderFromCart(userId);
         return ResponseEntity.ok(ordersMapper.orderToOrdersDTO(order));
     }
 
     // 주문 목록 조회
-    @GetMapping
-    public ResponseEntity<Page<OrdersDTO>> getOrders(@RequestParam(defaultValue = "0") int page,
+    @GetMapping({"/{userId}", ""})
+    public ResponseEntity<Page<OrdersDTO>> getOrders(@PathVariable("userId") @Positive Long userId,
+                                                     @RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "10") int size) {
-        Long userId = userService.getLoginUser().getId();
         Page<Orders> orders = ordersService.findOrders(userId, page, size);
         return ResponseEntity.ok(orders.map(ordersMapper::orderToOrdersDTO));
     }
