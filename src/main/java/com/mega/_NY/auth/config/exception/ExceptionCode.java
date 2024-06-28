@@ -9,6 +9,7 @@ public enum ExceptionCode {
     EXIST_PHONE_NUMBER(409,"이미 존재하는 연락처입니다."),
     ORDER_NOT_FOUND(404, "존재하지 않는 주문입니다."),
     CART_NOT_FOUND(404, "존재하지 않는 카트입니다."),
+    ITEM_NOT_FOUND(404, "존재하지 않는 상품입니다."),
     ITEMCART_NOT_FOUND(404, "존재하지 않는 항목입니다."),
     REVIEW_NOT_FOUND(404, "존재하지 않는 리뷰입니다."),
     TALK_NOT_FOUND(404, "존재하지 않는 토크입니다."),

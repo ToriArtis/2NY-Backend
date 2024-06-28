@@ -61,7 +61,7 @@ public class Orders {
     private User user;
 
     // 주문에 포함된 상품 목록
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemOrders> itemOrders = new ArrayList<>();
 
     @Column

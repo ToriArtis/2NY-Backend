@@ -29,7 +29,7 @@ public class ItemOrders {
     @JoinColumn(name="ITEM_ID")
     private Item item;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ORDER_ID")
     private Orders orders;
 
