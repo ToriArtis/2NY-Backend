@@ -1,17 +1,19 @@
 package com.mega._NY.item.service;
 
 import com.mega._NY.item.dto.ItemDTO;
-import com.mega._NY.item.entity.Item;
-import com.mega._NY.item.entity.ItemCategory;
-import com.mega._NY.item.entity.ItemColor;
-import com.mega._NY.item.entity.ItemSize;
+import com.mega._NY.item.entity.*;
 import com.mega._NY.item.mapper.ItemMapper;
 import com.mega._NY.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,10 +25,48 @@ public class ItemService {
 
     // 상품 추가
     @Transactional
-    public ItemDTO createItem(ItemDTO itemDTO) {
+    public ItemDTO createItem(ItemDTO itemDTO, List<MultipartFile> thumbnailFiles, List<MultipartFile> descriptionImageFiles) throws Exception {
         Item item = itemMapper.toEntity(itemDTO);
+
+        // 썸네일 이미지 업로드
+        if (thumbnailFiles != null && !thumbnailFiles.isEmpty()) {
+            List<String> thumbnails = uploadImages(thumbnailFiles);
+            item.setThumbnail(thumbnails);
+        }
+
+        // 상세 이미지 업로드
+        if (descriptionImageFiles != null && !descriptionImageFiles.isEmpty()) {
+            List<String> descriptionImages = uploadImages(descriptionImageFiles);
+            item.setDescriptionImage(descriptionImages);
+        }
+
         Item savedItem = itemRepository.save(item);
         return itemMapper.toDTO(savedItem);
+    }
+
+    private List<String> uploadImages(List<MultipartFile> files) throws Exception {
+        List<String> uploadedFiles = new ArrayList<>();
+
+        if (files != null) {
+            for (MultipartFile file : files) {
+                String originalName = file.getOriginalFilename();
+                if (originalName != null && !originalName.isEmpty()) {
+                    // 파일 이름 생성
+                    String fileName = System.currentTimeMillis() + "_" + originalName;
+                    // 파일 저장 경로
+                    String savePath = System.getProperty("user.dir") + "/src/main/resources/static/images/";
+                    // 저장 경로 없으면 디렉토리 생성
+                    if (!new File(savePath).exists()) {
+                        new File(savePath).mkdir();
+                    }
+                    String filePath = savePath + fileName;
+                    file.transferTo(new File(filePath));
+                    uploadedFiles.add(fileName);
+                }
+            }
+        }
+
+        return uploadedFiles;
     }
 
     // 상품 찾기

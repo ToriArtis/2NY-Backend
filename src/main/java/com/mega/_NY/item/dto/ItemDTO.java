@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,8 +19,10 @@ import java.time.LocalDateTime;
 public class ItemDTO {
 
     private Long itemId;
-    private String thumbnail;
-    private String descriptionImage;
+//    private String thumbnail;
+//    private String descriptionImage;
+    private List<String> thumbnail = new ArrayList<>();
+    private List<String> descriptionImage = new ArrayList<>();
     private String title;
     private String content;
     private int sales;
