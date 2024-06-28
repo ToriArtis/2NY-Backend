@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,11 +25,13 @@ public class Item {
     @Column
     private String content;
 
-    @Column
-    private String thumbnail;
+    @ElementCollection
+    @CollectionTable(joinColumns = @JoinColumn(name = "item_id"))
+    private List<String> thumbnail = new ArrayList<>();
 
-    @Column
-    private String descriptionImage;
+    @ElementCollection
+    @CollectionTable(joinColumns = @JoinColumn(name = "item_id"))
+    private List<String> descriptionImage = new ArrayList<>();
 
     @Column
     private int price;
@@ -60,7 +64,7 @@ public class Item {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Item(String title, String content, String thumbnail, String descriptionImage,
+    public Item(String title, String content, List<String> thumbnail, List<String> descriptionImage,
                 int price, int discountPrice, int discountRate, int sales, ItemSize size, ItemColor color, ItemCategory category) {
         this.title = title;
         this.content = content;

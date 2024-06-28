@@ -1,6 +1,7 @@
 package com.mega._NY.item.controller;
 
 import com.mega._NY.item.dto.ItemDTO;
+import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
 import com.mega._NY.item.entity.ItemSize;
 import com.mega._NY.item.service.ItemService;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,9 +22,17 @@ public class ItemController {
 
     // 상품 등록
     @PostMapping
-    public ResponseEntity<ItemDTO> createItem(@RequestBody ItemDTO itemDTO) {
-        ItemDTO createdItemDTO = itemService.createItem(itemDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdItemDTO);
+    public ResponseEntity<ItemDTO> createItem(
+            @ModelAttribute ItemDTO itemDTO,
+            @RequestParam(value = "thumbnailFiles", required = false) List<MultipartFile> thumbnailFiles,
+            @RequestParam(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) {
+        try {
+            ItemDTO createdItemDTO = itemService.createItem(itemDTO, thumbnailFiles, descriptionImageFiles);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdItemDTO);
+        } catch (Exception e) {
+            // 이미지 업로드 실패 시 예외 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // 상품 조회
@@ -51,6 +61,13 @@ public class ItemController {
     public ResponseEntity<Void> deleteItem(@PathVariable Long itemId) {
         itemService.deleteItem(itemId);
         return ResponseEntity.noContent().build();
+    }
+    
+    // 카테고리별 상품 조회
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<ItemDTO>> getItemsByCategory(@PathVariable ItemCategory category) {
+        List<ItemDTO> items = itemService.getItemsByCategory(category);
+        return ResponseEntity.ok(items);
     }
 
     // 높은 가격순으로 조회
