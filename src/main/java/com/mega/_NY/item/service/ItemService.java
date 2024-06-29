@@ -5,12 +5,17 @@ import com.mega._NY.item.entity.*;
 import com.mega._NY.item.mapper.ItemMapper;
 import com.mega._NY.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -69,12 +74,34 @@ public class ItemService {
         return uploadedFiles;
     }
 
+    public Resource loadImages(String filename) throws IOException {
+        try {
+            Path filePath = Paths.get(System.getProperty("user.dir") + "/src/main/resources/static/images/" + filename);
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new IOException("이미지를 찾을 수 없습니다.: " + filename);
+            }
+        } catch (MalformedURLException e) {
+            throw new IOException("이미지를 찾을 수 없습니다.: " + filename, e);
+        }
+    }
+
     // 상품 찾기
     @Transactional(readOnly = true)
     public ItemDTO getItem(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다. itemId=" + itemId));
-        return itemMapper.toDTO(item);
+        
+        ItemDTO itemDTO = itemMapper.toDTO(item);
+
+        // URL 생성 -> 이미지 파일명 설정
+        itemDTO.setThumbnail(item.getThumbnail());
+        itemDTO.setDescriptionImage(item.getDescriptionImage());
+
+        return itemDTO;
+
     }
 
     // 상품 목록 조회

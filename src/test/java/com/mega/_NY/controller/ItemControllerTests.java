@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -41,8 +42,8 @@ public class ItemControllerTests {
         itemDTO = new ItemDTO();
         itemDTO.setTitle("Test Item");                       // 상품 제목
         itemDTO.setContent("Test Content");                  // 상품 본문
-        itemDTO.setThumbnail("test_thumbnail.jpg");          // 썸네일 이미지 경로
-        itemDTO.setDescriptionImage("test_description.jpg"); // 제품 상세이미지 경로
+        itemDTO.setThumbnail(Arrays.asList("test_thumbnail.jpg"));          // 썸네일 이미지 경로
+        itemDTO.setDescriptionImage(Arrays.asList("test_description.jpg")); // 제품 상세이미지 경로
         itemDTO.setPrice(1000);                              // 가격
         itemDTO.setDiscountPrice(900);                       // 할인 된 가격
         itemDTO.setDiscountRate(10);                         // 할인율
