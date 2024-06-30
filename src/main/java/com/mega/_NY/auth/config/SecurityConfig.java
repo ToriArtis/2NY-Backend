@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
@@ -46,7 +47,14 @@ public class SecurityConfig {
         // JWT 인증 필터를 CORS 필터 이후에 추가
         http.addFilterAfter(jwtAuthenticationFilter, CorsFilter.class);
 
+
+
         // 설정된 SecurityFilterChain 반환
         return http.build();
     }
+
+//    @Bean
+//    public AuthenticationSuccessHandler authenticationSuccessHandler(){
+//        return new CustomSocialLoginSuccessHandler(passwordEncoder);
+//    }
 }

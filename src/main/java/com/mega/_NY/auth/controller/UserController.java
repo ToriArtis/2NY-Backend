@@ -1,5 +1,6 @@
 package com.mega._NY.auth.controller;
 
+import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.dto.LoginDTO;
 import com.mega._NY.auth.dto.ResponseDTO;
 import com.mega._NY.auth.dto.UserDTO;
@@ -32,16 +33,11 @@ public class UserController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO){
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO.ResponseDTO userDTO){
         try {
-            User user = User.builder()
-                    .email(userDTO.getEmail())
-                    .realName(userDTO.getRealName())
-                    .password(userDTO.getPassword())
-                    .build();
             //서비스를 이용해 리포지터리에 사용자 저장
-            User registeredUser = userService.joinUser(user);
-            UserDTO responseUserDTO = UserDTO.builder()
+            User registeredUser = userService.join(userDTO);
+            UserDTO.ResponseDTO responseUserDTO = userDTO.builder()
                     .email(registeredUser.getEmail())
                     .realName(registeredUser.getRealName())
                     .build();
@@ -63,20 +59,53 @@ public class UserController {
         );
         if( user != null){
             final String token = tokenProvider.create(user);
-            final UserDTO responseUserDTO = UserDTO.builder()
+            final UserDTO.LoginDTO responseUserDTO = UserDTO.LoginDTO.builder()
                     .email(user.getEmail())
                     .token(token)
                     .build();
             return ResponseEntity.ok().body(responseUserDTO);
         }
         else{
-            ResponseDTO responseDTO = ResponseDTO.builder()
-                    .error("Login failed").build();
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
 
             return ResponseEntity
                     .badRequest()
                     .body(responseDTO);
         }
-
     }
+
+    @GetMapping("/info")
+    public ResponseEntity<?> info() {
+        try {
+            User loginUser = userService.getLoginUser();
+            UserDTO.ResponseDTO userDTO = userService.info(loginUser.getEmail());
+            return ResponseEntity.ok(userDTO);
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @PutMapping("/modify")
+    public ResponseEntity<?> modify(@RequestBody UserDTO.ResponseDTO userDTO) {
+        try {
+            userService.modify(userDTO);
+            return ResponseEntity.ok().build();
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser() {
+        try {
+            userService.deleteUser();
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
 }

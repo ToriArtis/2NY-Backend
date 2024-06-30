@@ -10,9 +10,11 @@ import com.mega._NY.auth.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,15 +31,32 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthUtils authUtils;
+    private final ModelMapper modelMapper;
 
-    public User joinUser( User user ){
-        existEmail(user.getEmail());
-//        existDisplayName(user.getNickName());
-        encodePassword(user);
-        existPhoneNum(user.getPhone());
+
+    public User join(UserDTO.ResponseDTO userDTO) throws BusinessLogicException {
+        String email = userDTO.getEmail();
+        String nickName = userDTO.getNickName();
+        String phone = userDTO.getPhone();
+
+        if (userRepository.existsByPhone(phone)) {
+            throw new BusinessLogicException(ExceptionCode.EXIST_PHONE_NUMBER);
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessLogicException(ExceptionCode.EXIST_EMAIL);
+        }
+        if (userRepository.existsByNickName(nickName)) {
+            throw new BusinessLogicException(ExceptionCode.EXIST_NICK_NAME);
+        }
+//        if (nickName.length() > 5) {  // 물어보기!!!
+//            throw new NickNameLengthException("닉네임은 5글자 이하여야 합니다.");
+//        }
+
+        User user = modelMapper.map(userDTO, User.class);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));       //password는 암호화
         createRole(user);
-        userRepository.save(user);
-        return user;
+
+        return userRepository.save(user);
     }
     
     // 로그인 로직
@@ -45,50 +64,56 @@ public class UserService {
         // 주어진 이메일을 사용하여 사용자 정보를 데이터베이스에서 조회
 
         log.info("getByCredentials");
-        log.info(password);
         final User onlineUser = userRepository.findByEmail(email).orElseThrow();
 
-        log.info("user : "+onlineUser);
-        log.info("sss"+passwordEncoder.matches(password, onlineUser.getPassword()) );
         // 사용자가 존재하고 비밀번호가 일치하는지 확인
         if (onlineUser != null && passwordEncoder.matches(password, onlineUser.getPassword())) {
-
             // 비밀번호가 일치하면 사용자 객체를 반환
-            log.info("password : "+onlineUser.getPassword());
             return onlineUser;
         }
-
         // 비밀번호가 일치하지 않으면 null 반환
         return null;
+    }
+
+
+    public UserDTO.ResponseDTO info(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+        UserDTO.ResponseDTO userDTO = modelMapper.map(user, UserDTO.ResponseDTO.class);
+
+        log.info("info AuthDTO : " + userDTO);
+        userDTO.setEmail(user.getEmail());
+        return userDTO;
+    }
+
+    public void modify(UserDTO.ResponseDTO userDTO) {
+
+
+        User loginUser = getLoginUser();
+
+        loginUser.setAddress(userDTO.getAddress());
+        loginUser.setPhone(userDTO.getPhone());
+        loginUser.setRealName(userDTO.getRealName());
+        loginUser.setNickName(userDTO.getNickName());
+        loginUser.setDetailAddress(userDTO.getDetailAddress());
+
+        loginUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+        userRepository.save(loginUser);
+    }
+
+    public User deleteUser(){
+        User loginUser = getLoginUser();
+        loginUser.setUserStatus(UserStatus.USER_WITHDRAWAL);
+
+        // cart 지우는 로직 설명 듣기!!
+        return loginUser;
     }
 
     private User createRole( User user ){
         List<String> roles = authUtils.createRoles();
         user.setRoles(roles);
         return user;
-    }
-
-    private void existPhoneNum(String PhoneNum){
-        Optional<User> user  = userRepository.findByPhone(PhoneNum);
-        if(user.isPresent()) throw new RuntimeException();
-
-    }
-
-    private User encodePassword( User user ){
-        String encodedPwd = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPwd);
-        return user;
-    }
-
-//    private void existDisplayName( String nickName ){
-//        Optional<User> user = userRepository.findByNickName(nickName);
-//        if(user.isPresent()) throw new BusinessLogicException(ExceptionCode.EXIST_DISPLAY_NAME);
-//    }
-
-    private void existEmail( String email ){
-        Optional<User> user = userRepository.findByEmail(email);
-        if(user.isPresent()) throw new BusinessLogicException(ExceptionCode.EXIST_EMAIL);
-
     }
 
     public User getLoginUser(){
@@ -106,10 +131,6 @@ public class UserService {
         return user.get().getId();
     }
 
-    public User deleteUser(){
-        User loginUser = getLoginUser();
-        loginUser.setUserStatus(UserStatus.USER_WITHDRAWAL);
-        return loginUser;
-    }
+
 
 }
