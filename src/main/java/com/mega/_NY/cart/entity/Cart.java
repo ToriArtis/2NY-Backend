@@ -18,14 +18,14 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartId;
 
-    @Column(name = "USER_ID", unique = true)
+    @Column(name = "USER_ID", unique = true, nullable = false)
     private Long userId;
 
-    @Column
+    @Column(nullable = false)
     @Setter
     private int totalItems;
 
-    @Column
+    @Column(nullable = false)
     @Setter
     private int totalPrice;
 

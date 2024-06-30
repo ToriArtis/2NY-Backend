@@ -1,5 +1,6 @@
 package com.mega._NY.cart.service;
 
+import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.service.UserService;
@@ -41,14 +42,17 @@ public class CartService {
     }
 
     // 현재 사용자의 장바구니 찾기
-    public Cart findMyCart() {
-        Long userId = userService.getLoginUser().getId();
-        return cartRepository.findByUserId(userId);
+    public Cart findMyCart(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId);
+        if (cart == null) {
+            throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
+        }
+        return cart;
     }
 
     // 현재 사용자의 장바구니 DTO 반환
-    public CartDTO findMyCartDTO() {
-        Cart cart = findMyCart();
+    public CartDTO findMyCartDTO(Long userId) {
+        Cart cart = findMyCart(userId);
         return cartMapper.toDTO(cart);
     }
 
@@ -58,7 +62,7 @@ public class CartService {
 
     // 장바구니 비우기
     public void clearCart(User user) {
-        Cart cart = findMyCart();
+        Cart cart = findMyCart(user.getId());
         if (cart != null) {
             // ItemCart 엔티티들을 모두 제거
             itemCartService.removeAllItemCartsFromCart(cart);
@@ -68,6 +72,8 @@ public class CartService {
             cart.setTotalDiscountPrice(0);
             cart.setTotalItems(0);
             cartRepository.save(cart);
+        } else {
+            throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
         }
     }
 

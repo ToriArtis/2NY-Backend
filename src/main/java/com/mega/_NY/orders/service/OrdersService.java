@@ -7,15 +7,19 @@ import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.entity.ItemCart;
 import com.mega._NY.cart.service.CartService;
+import com.mega._NY.cart.service.ItemCartService;
 import com.mega._NY.item.entity.Item;
 import com.mega._NY.item.repository.ItemRepository;
+import com.mega._NY.orders.dto.OrdersDTO;
 import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.entity.OrderStatus;
 import com.mega._NY.orders.entity.Orders;
+import com.mega._NY.orders.mapper.OrdersMapper;
 import com.mega._NY.orders.repository.OrdersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,77 +39,49 @@ public class OrdersService {
     private final CartService cartService;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final ItemCartService itemCartService;
 
     // 새로운 주문 생성
     public Orders createOrder(List<ItemOrders> itemOrders, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
 
-        // Item 정보를 데이터베이스에서 불러옵니다.
-        itemOrders.forEach(io -> {
-            Item item = itemRepository.findById(io.getItem().getItemId())
-                    .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
-            io.setItem(item);
-        });
-
         Orders order = new Orders();
         setOrderInfo(order, user);
-        order.setItemOrders(itemOrders);
-        order.setUser(user);
         order.setOrderStatus(OrderStatus.ORDER_REQUEST);
-        order.setTotalPrice(itemOrdersService.calculateTotalPrice(itemOrders));
-        order.setTotalDiscountPrice(itemOrdersService.calculateDiscountTotalPrice(itemOrders));
-        order.setExpectPrice(order.getTotalPrice() - order.getTotalDiscountPrice());
 
-        for (ItemOrders io : itemOrders) {
-            io.setOrders(order);
-            itemOrdersService.createItemOrder(io);
-            itemOrdersService.updateItemSales(io, true);
-        }
+        // 주문 항목 처리 및 총계 계산
+        processOrderItems(order, itemOrders);
 
         return orderRepository.save(order);
     }
 
+    // 장바구니에서 주문 생성
     public Orders createOrderFromCart(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("User not found for ID: {}", userId);
-                    return new BusinessLogicException(ExceptionCode.USER_NOT_FOUND);
-                });
-        log.info("user : " + user);
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
 
-        Cart cart = cartService.findVerifiedCart(user.getId());
+        Cart cart = cartService.findMyCart(userId);
         if (cart.getItemCarts().isEmpty()) {
             throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
         }
 
         Orders order = new Orders();
         setOrderInfo(order, user);
-        order.setUser(user);
         order.setOrderStatus(OrderStatus.ORDER_REQUEST);
+        final Orders savedOrder = orderRepository.save(order);  // final로 선언
 
-        Orders savedorder = orderRepository.save(order);
-
+        // 장바구니 항목을 주문 항목으로 변환
         List<ItemOrders> itemOrders = cart.getItemCarts().stream()
-                .map(itemCart ->
-                        createItemOrderFromCartItem(itemCart, savedorder))
+                .map(itemCart -> createItemOrderFromCartItem(itemCart, savedOrder))  // savedOrder 사용
                 .collect(Collectors.toList());
 
-        order.setItemOrders(itemOrders);
-        order.setTotalPrice(itemOrdersService.calculateTotalPrice(itemOrders));
-        order.setTotalDiscountPrice(itemOrdersService.calculateDiscountTotalPrice(itemOrders));
-        order.setExpectPrice(order.getTotalPrice() - order.getTotalDiscountPrice());
+        // 주문 항목 처리 및 총계 계산
+        processOrderItems(savedOrder, itemOrders);
 
-        order = orderRepository.save(order);
-
-        itemOrders.forEach(io -> {
-            itemOrdersService.updateItemSales(io, true);
-        });
-
-        // 주문 생성 후 카트 비우기
         cartService.clearCart(user);
 
-        return order;
+        return orderRepository.save(savedOrder);
     }
 
     // 주문 취소
@@ -118,8 +94,10 @@ public class OrdersService {
 
     // ID로 주문 조회
     public Orders findOrder(Long orderId) {
-        return orderRepository.findById(orderId)
+        Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
+        order.getItemOrders().forEach(io -> Hibernate.initialize(io.getItem()));
+        return order;
     }
 
     // 사용자의 주문 목록 조회 (페이지네이션)
@@ -127,13 +105,36 @@ public class OrdersService {
         return orderRepository.findAllByUserId(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderId")));
     }
 
+    // 주문 정보 설정 헬퍼 메소드
     private void setOrderInfo(Orders order, User user) {
         order.setName(user.getName());
-        order.setAddress("user.getAddress()");
-        order.setDetailAddress("user.getDetailAddress()");
-        order.setPhone("user.getPhone()");
+//        테스트 용 값
+//        order.setAddress("user.getAddress()");
+//        order.setDetailAddress("user.getDetailAddress()");
+//        order.setPhone("user.getPhone()");
+        order.setAddress(user.getAddress());
+        order.setDetailAddress(user.getDetailAddress());
+        order.setPhone(user.getPhone());
+        order.setUserId(user.getId());
+        order.setUser(user);
     }
 
+    // 주문 항목 처리 및 총계 계산 헬퍼 메소드
+    private void processOrderItems(Orders order, List<ItemOrders> itemOrders) {
+        for (ItemOrders io : itemOrders) {
+            io.setOrders(order);
+            itemOrdersService.createItemOrder(io);
+            itemOrdersService.updateItemSales(io, true);
+        }
+
+        order.setItemOrders(itemOrders);
+        order.setTotalPrice(itemOrdersService.calculateTotalPrice(itemOrders));
+        order.setTotalDiscountPrice(itemOrdersService.calculateDiscountTotalPrice(itemOrders));
+        order.setExpectPrice(order.getTotalPrice() - order.getTotalDiscountPrice());
+        order.setTotalItems(itemOrders.size());
+    }
+
+    // 장바구니 항목을 주문 항목으로 변환하는 헬퍼 메소드
     private ItemOrders createItemOrderFromCartItem(ItemCart itemCart, Orders order) {
         ItemOrders itemOrder = new ItemOrders();
         itemOrder.setItem(itemCart.getItem());
