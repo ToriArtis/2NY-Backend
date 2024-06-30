@@ -27,7 +27,7 @@ public class ItemController {
     // 상품 등록
     @PostMapping
     public ResponseEntity<ItemDTO> createItem(
-            @ModelAttribute ItemDTO itemDTO,
+            @RequestPart ItemDTO itemDTO,
             @RequestParam(value = "thumbnailFiles", required = false) List<MultipartFile> thumbnailFiles,
             @RequestParam(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) {
         try {
