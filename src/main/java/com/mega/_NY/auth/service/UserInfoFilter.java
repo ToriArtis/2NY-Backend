@@ -18,12 +18,12 @@ import java.util.Optional;
 public class UserInfoFilter {
     private final UserRepository userRepository;
 
-//    private void existDisplayName(String displayName) {
-//        log.info("displayName = {}", displayName);
-//        if (displayName == null) return;
-//        Optional<User> user = userRepository.findByNickName(displayName);
-//        if (user.isPresent()) throw new BusinessLogicException(ExceptionCode.EXIST_DISPLAY_NAME);
-//    }
+    private void existNickName(String NickName) {
+        log.info("NickName = {}", NickName);
+        if (NickName == null) return;
+        Optional<User> user = userRepository.findByNickName(NickName);
+        if (user.isPresent()) throw new BusinessLogicException(ExceptionCode.EXIST_NICK_NAME);
+    }
 
     public void existEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -39,7 +39,7 @@ public class UserInfoFilter {
 
     public void filterUserInfo(User user) {
         existEmail(user.getEmail());
-//        existDisplayName(user.getNickName());
+        existNickName(user.getNickName());
         existPhoneNum(user.getPhone());
     }
 
