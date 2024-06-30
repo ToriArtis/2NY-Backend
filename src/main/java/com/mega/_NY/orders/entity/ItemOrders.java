@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Entity(name = "ITEM_ORDERS")
@@ -25,14 +28,26 @@ public class ItemOrders {
     private int quantity;
 
     // 주문한 상품
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="ITEM_ID")
     private Item item;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "ORDER_ID")
     private Orders orders;
 
-    
+    @Column
+    private int price; // 개별 상품 가격
+
+    @Column
+    private int totalPrice;
+
+    @Column
+    private int discountPrice; // 개별 상품 할인 가격
+
+    public void calculatePrices() {
+        this.totalPrice = this.quantity * this.price;
+    }
+
 
 }

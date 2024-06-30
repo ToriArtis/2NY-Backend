@@ -61,10 +61,10 @@ public class Orders {
     private User user;
 
     // 주문에 포함된 상품 목록
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ItemOrders> itemOrders = new ArrayList<>();
 
-    @Column
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @Column
@@ -75,6 +75,17 @@ public class Orders {
             this.userId = user.getId();
             this.user = user;
         }
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
 }

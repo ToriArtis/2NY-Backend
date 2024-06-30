@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public interface ItemOrdersMapper {
 
     @Mapping(target = "item", source = "itemId", qualifiedByName = "itemIdToItem")
+    @Mapping(target = "orders", ignore = true)
     ItemOrders itemOrderDtoToItemOrder(ItemOrderDTO itemOrderDto);
 
     @Mapping(target = "itemId", source = "item.itemId")

@@ -9,6 +9,8 @@ import com.mega._NY.cart.repository.ItemCartRepository;
 import com.mega._NY.cart.util.EntityUtils;
 import com.mega._NY.item.entity.Item;
 import com.mega._NY.item.repository.ItemRepository;
+import com.mega._NY.orders.entity.ItemOrders;
+import com.mega._NY.orders.entity.Orders;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -128,5 +130,14 @@ public class ItemCartService {
     public void removeAllItemCartsFromCart(Cart cart) {
         List<ItemCart> itemCarts = itemCartRepository.findAllByCart(cart);
         itemCartRepository.deleteAll(itemCarts);
+    }
+
+    public ItemOrders createItemOrderFromCartItem(ItemCart itemCart, Orders order) {
+        ItemOrders itemOrder = new ItemOrders();
+        itemOrder.setItem(itemCart.getItem());
+        itemOrder.setQuantity(itemCart.getQuantity());
+        itemOrder.setOrders(order);
+        itemOrder.setPrice(itemCart.getItem().getPrice());  // Item의 가격 정보 설정
+        return itemOrder;
     }
 }
