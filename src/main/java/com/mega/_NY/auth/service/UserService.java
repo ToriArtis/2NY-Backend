@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class UserService {
     private final ModelMapper modelMapper;
 
 
-    public User join(UserDTO.SignUpDTO userDTO) throws BusinessLogicException {
+    public User join(UserDTO.ResponseDTO userDTO) throws BusinessLogicException {
         String email = userDTO.getEmail();
         String nickName = userDTO.getNickName();
         String phone = userDTO.getPhone();
@@ -75,6 +76,39 @@ public class UserService {
     }
 
 
+    public UserDTO.ResponseDTO info(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+        UserDTO.ResponseDTO userDTO = modelMapper.map(user, UserDTO.ResponseDTO.class);
+
+        log.info("info AuthDTO : " + userDTO);
+        userDTO.setEmail(user.getEmail());
+        return userDTO;
+    }
+
+    public void modify(UserDTO.ResponseDTO userDTO) {
+
+
+        User loginUser = getLoginUser();
+
+        loginUser.setAddress(userDTO.getAddress());
+        loginUser.setPhone(userDTO.getPhone());
+        loginUser.setRealName(userDTO.getRealName());
+        loginUser.setNickName(userDTO.getNickName());
+        loginUser.setDetailAddress(userDTO.getDetailAddress());
+
+        loginUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+        userRepository.save(loginUser);
+    }
+
+    public User deleteUser(){
+        User loginUser = getLoginUser();
+        loginUser.setUserStatus(UserStatus.USER_WITHDRAWAL);
+
+        // cart 지우는 로직 설명 듣기!!
+        return loginUser;
+    }
 
     private User createRole( User user ){
         List<String> roles = authUtils.createRoles();
@@ -97,10 +131,6 @@ public class UserService {
         return user.get().getId();
     }
 
-    public User deleteUser(){
-        User loginUser = getLoginUser();
-        loginUser.setUserStatus(UserStatus.USER_WITHDRAWAL);
-        return loginUser;
-    }
+
 
 }

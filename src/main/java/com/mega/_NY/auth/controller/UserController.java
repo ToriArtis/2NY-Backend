@@ -1,5 +1,6 @@
 package com.mega._NY.auth.controller;
 
+import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.dto.LoginDTO;
 import com.mega._NY.auth.dto.ResponseDTO;
 import com.mega._NY.auth.dto.UserDTO;
@@ -32,11 +33,11 @@ public class UserController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO.SignUpDTO userDTO){
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO.ResponseDTO userDTO){
         try {
             //서비스를 이용해 리포지터리에 사용자 저장
             User registeredUser = userService.join(userDTO);
-            UserDTO.SignUpDTO responseUserDTO = userDTO.builder()
+            UserDTO.ResponseDTO responseUserDTO = userDTO.builder()
                     .email(registeredUser.getEmail())
                     .realName(registeredUser.getRealName())
                     .build();
@@ -73,5 +74,38 @@ public class UserController {
         }
     }
 
+    @GetMapping("/info")
+    public ResponseEntity<?> info() {
+        try {
+            User loginUser = userService.getLoginUser();
+            UserDTO.ResponseDTO userDTO = userService.info(loginUser.getEmail());
+            return ResponseEntity.ok(userDTO);
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @PutMapping("/modify")
+    public ResponseEntity<?> modify(@RequestBody UserDTO.ResponseDTO userDTO) {
+        try {
+            userService.modify(userDTO);
+            return ResponseEntity.ok().build();
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser() {
+        try {
+            userService.deleteUser();
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
 
 }

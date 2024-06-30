@@ -6,12 +6,13 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
-@Builder
-@Getter
 public class UserDTO {
     @Builder
     @Getter
-    public class SignUpDTO {
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static  class ResponseDTO {
 
         @NotBlank private String email; // 사용자 이메일
         @NotBlank private String password; // 사용자 비밀번호
@@ -24,7 +25,10 @@ public class UserDTO {
 
     @Builder
     @Getter
-    public class LoginDTO{
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static  class LoginDTO{
         private String token;
 
         @NotBlank private String email; // 사용자 이메일
