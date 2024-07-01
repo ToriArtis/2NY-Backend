@@ -1,5 +1,8 @@
 package com.mega._NY.item.controller;
 
+import com.mega._NY.auth.entity.User;
+import com.mega._NY.auth.entity.UserRoles;
+import com.mega._NY.auth.service.UserService;
 import com.mega._NY.item.dto.ItemDTO;
 import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
@@ -23,6 +26,12 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
+    private final UserService userService;
+
+    private boolean isAdmin() {
+        User loginUser = userService.getLoginUser();
+        return loginUser.getRoleSet().contains(UserRoles.ADMIN);
+    }
 
     // 상품 등록
     @PostMapping
@@ -30,11 +39,13 @@ public class ItemController {
             @RequestPart ItemDTO itemDTO,
             @RequestParam(value = "thumbnailFiles", required = false) List<MultipartFile> thumbnailFiles,
             @RequestParam(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) {
+        if (!isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         try {
             ItemDTO createdItemDTO = itemService.createItem(itemDTO, thumbnailFiles, descriptionImageFiles);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdItemDTO);
         } catch (Exception e) {
-            // 이미지 업로드 실패 시 예외 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -44,7 +55,6 @@ public class ItemController {
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
             Resource file = itemService.loadImages(filename);
-            // 파일 확장자 확인 후 타입 설정
             String contentType = "application/octet-stream";
             if (filename.toLowerCase().endsWith(".png")) {
                 contentType = "image/png";
@@ -78,6 +88,9 @@ public class ItemController {
     // 상품 수정
     @PutMapping("/{itemId}")
     public ResponseEntity<ItemDTO> updateItem(@PathVariable Long itemId, @RequestBody ItemDTO itemDTO) {
+        if (!isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         ItemDTO updatedItemDTO = itemService.updateItem(itemId, itemDTO);
         return ResponseEntity.ok(updatedItemDTO);
     }
@@ -85,10 +98,13 @@ public class ItemController {
     // 상품 삭제
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteItem(@PathVariable Long itemId) {
+        if (!isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         itemService.deleteItem(itemId);
         return ResponseEntity.noContent().build();
     }
-    
+
     // 카테고리별 상품 조회
     @GetMapping("/category/{category}")
     public ResponseEntity<List<ItemDTO>> getItemsByCategory(@PathVariable ItemCategory category) {
@@ -110,7 +126,6 @@ public class ItemController {
         return ResponseEntity.ok(itemDTOList);
     }
 
-
     // 색상&사이즈 필터
     @GetMapping("/filter")
     public ResponseEntity<List<ItemDTO>> getItemsByFilter(
@@ -131,5 +146,4 @@ public class ItemController {
 
         return ResponseEntity.ok(itemDTOList);
     }
-
 }
