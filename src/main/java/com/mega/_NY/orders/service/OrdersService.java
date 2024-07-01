@@ -7,14 +7,9 @@ import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.entity.ItemCart;
 import com.mega._NY.cart.service.CartService;
-import com.mega._NY.cart.service.ItemCartService;
-import com.mega._NY.item.entity.Item;
-import com.mega._NY.item.repository.ItemRepository;
-import com.mega._NY.orders.dto.OrdersDTO;
 import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.entity.OrderStatus;
 import com.mega._NY.orders.entity.Orders;
-import com.mega._NY.orders.mapper.OrdersMapper;
 import com.mega._NY.orders.repository.OrdersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +33,6 @@ public class OrdersService {
     private final ItemOrdersService itemOrdersService;
     private final CartService cartService;
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
-    private final ItemCartService itemCartService;
 
     // 새로운 주문 생성
     public Orders createOrder(List<ItemOrders> itemOrders, Long userId) {
@@ -108,10 +101,6 @@ public class OrdersService {
     // 주문 정보 설정 헬퍼 메소드
     private void setOrderInfo(Orders order, User user) {
         order.setName(user.getName());
-//        테스트 용 값
-//        order.setAddress("user.getAddress()");
-//        order.setDetailAddress("user.getDetailAddress()");
-//        order.setPhone("user.getPhone()");
         order.setAddress(user.getAddress());
         order.setDetailAddress(user.getDetailAddress());
         order.setPhone(user.getPhone());

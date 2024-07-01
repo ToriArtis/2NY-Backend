@@ -11,6 +11,9 @@ import com.mega._NY.cart.repository.CartRepository;
 import com.mega._NY.cart.util.EntityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 
@@ -20,7 +23,6 @@ import org.springframework.stereotype.Service;
 public class CartService {
 
     private final CartRepository cartRepository;
-    private final UserService userService;
     private final CartMapper cartMapper;
     private final ItemCartService itemCartService;
 
@@ -54,6 +56,11 @@ public class CartService {
     public CartDTO findMyCartDTO(Long userId) {
         Cart cart = findMyCart(userId);
         return cartMapper.toDTO(cart);
+    }
+
+    // 사용자의 주문 목록 조회 (페이지네이션)
+    public Page<Cart> findCarts(Long userId, int page, int size) {
+        return cartRepository.findAllByUserId(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "cartId")));
     }
 
     public Cart findVerifiedCart(long cartId) {

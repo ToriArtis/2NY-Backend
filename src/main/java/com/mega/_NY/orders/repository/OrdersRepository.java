@@ -1,6 +1,5 @@
 package com.mega._NY.orders.repository;
 
-import com.mega._NY.auth.entity.User;
 import com.mega._NY.orders.entity.OrderStatus;
 import com.mega._NY.orders.entity.Orders;
 import org.springframework.data.domain.Page;

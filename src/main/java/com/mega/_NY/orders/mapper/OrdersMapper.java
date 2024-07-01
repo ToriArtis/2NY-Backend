@@ -1,8 +1,6 @@
 package com.mega._NY.orders.mapper;
 
-import com.mega._NY.orders.dto.ItemOrderDTO;
 import com.mega._NY.orders.dto.OrdersDTO;
-import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.entity.Orders;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
