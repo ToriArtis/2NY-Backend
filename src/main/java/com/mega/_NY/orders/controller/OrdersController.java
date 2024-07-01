@@ -2,9 +2,6 @@ package com.mega._NY.orders.controller;
 
 import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
-import com.mega._NY.auth.entity.User;
-import com.mega._NY.auth.repository.UserRepository;
-import com.mega._NY.auth.service.UserService;
 import com.mega._NY.item.entity.Item;
 import com.mega._NY.item.repository.ItemRepository;
 import com.mega._NY.orders.dto.ItemOrderDTO;
@@ -19,7 +16,6 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

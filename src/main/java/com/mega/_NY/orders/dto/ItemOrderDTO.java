@@ -1,6 +1,5 @@
 package com.mega._NY.orders.dto;
 
-import com.mega._NY.item.dto.ItemDTO;
 import lombok.*;
 
 import java.time.LocalDateTime;
