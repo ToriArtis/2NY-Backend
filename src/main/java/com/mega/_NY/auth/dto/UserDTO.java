@@ -7,6 +7,16 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 public class UserDTO {
+
+    @Builder
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static  class RoleModifyRequestDTO {
+        private String password;
+    }
+
     @Builder
     @Getter
     @Setter
@@ -39,5 +49,4 @@ public class UserDTO {
         @NotBlank private String realName; // 사용자의 실제 이름
         @NotBlank private String phone; // 사용자 전화번호
     }
-
 }

@@ -5,6 +5,7 @@ import com.mega._NY.auth.dto.LoginDTO;
 import com.mega._NY.auth.dto.ResponseDTO;
 import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.User;
+import com.mega._NY.auth.entity.UserRoles;
 import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.entity.Cart;
@@ -12,10 +13,14 @@ import com.mega._NY.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @RestController
@@ -30,7 +35,6 @@ public class UserController {
     private TokenProvider tokenProvider;
     @Autowired
     private CartService cartService;
-
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO.ResponseDTO userDTO){
@@ -105,6 +109,23 @@ public class UserController {
         } catch (BusinessLogicException e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
             return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    @PostMapping("/role")
+    public ResponseEntity<?> roleModify(@RequestBody Map<String, String> request) {
+        String password = request.get("password");
+        log.info("Received password: " + password);
+        if ("123456789".equals(password)) {  // Note: This is still not secure
+            try {
+                userService.roleModify();
+                return ResponseEntity.ok().body("Roles updated successfully");
+            } catch (BusinessLogicException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
+        } else {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Invalid admin passwordd").build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDTO);
         }
     }
 

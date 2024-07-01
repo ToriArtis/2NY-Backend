@@ -5,8 +5,12 @@ import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.AuthUtils;
 import com.mega._NY.auth.entity.User;
+import com.mega._NY.auth.entity.UserRoles;
 import com.mega._NY.auth.entity.UserStatus;
 import com.mega._NY.auth.repository.UserRepository;
+import com.mega._NY.cart.entity.Cart;
+import com.mega._NY.cart.repository.CartRepository;
+import com.mega._NY.cart.service.CartService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +36,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthUtils authUtils;
     private final ModelMapper modelMapper;
+    private final CartRepository cartRepository;
 
 
     public User join(UserDTO.ResponseDTO userDTO) throws BusinessLogicException {
@@ -48,13 +53,14 @@ public class UserService {
         if (userRepository.existsByNickName(nickName)) {
             throw new BusinessLogicException(ExceptionCode.EXIST_NICK_NAME);
         }
-//        if (nickName.length() > 5) {  // 물어보기!!!
-//            throw new NickNameLengthException("닉네임은 5글자 이하여야 합니다.");
-//        }
+        if (nickName.length() >= 12) {
+            throw new BusinessLogicException(ExceptionCode.NICKNAME_TOO_LONG);
+        }
 
         User user = modelMapper.map(userDTO, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));       //password는 암호화
         createRole(user);
+
 
         return userRepository.save(user);
     }
@@ -102,17 +108,30 @@ public class UserService {
         userRepository.save(loginUser);
     }
 
-    public User deleteUser(){
+    public void roleModify() {
         User loginUser = getLoginUser();
+
+        loginUser.addRole(UserRoles.ADMIN);
+        userRepository.save(loginUser);
+    }
+
+    public User deleteUser(){
+
+        User loginUser = getLoginUser();
+        Long userId = loginUser.getId();
+        Cart cart = cartRepository.findByUserId(userId);
+        if(cart != null){
+            cartRepository.delete(cart);
+        }
+
         loginUser.setUserStatus(UserStatus.USER_WITHDRAWAL);
 
-        // cart 지우는 로직 설명 듣기!!
         return loginUser;
     }
 
     private User createRole( User user ){
         List<String> roles = authUtils.createRoles();
-        user.setRoles(roles);
+        user.addRole(UserRoles.USER);
         return user;
     }
 
