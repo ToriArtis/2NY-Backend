@@ -44,6 +44,10 @@ public class UserController {
             UserDTO.ResponseDTO responseUserDTO = userDTO.builder()
                     .email(registeredUser.getEmail())
                     .realName(registeredUser.getRealName())
+                    .password(registeredUser.getPassword())
+                    .address(registeredUser.getAddress())
+                    .phone(registeredUser.getPhone())
+                    .detailAddress(registeredUser.getDetailAddress())
                     .build();
             cartService.createCart(registeredUser);
             return ResponseEntity.ok().body(responseUserDTO);

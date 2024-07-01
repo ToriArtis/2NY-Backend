@@ -80,4 +80,10 @@ public class User  implements Principal{
     public void addRole(UserRoles role) { this.roleSet.add(role); }
     public void claerRoles() { this.roleSet.clear(); }
 
+    public User updateUser(String username, String email) {
+        this.realName = username;
+        this.email = email;
+        return this;
+    }
+
 }

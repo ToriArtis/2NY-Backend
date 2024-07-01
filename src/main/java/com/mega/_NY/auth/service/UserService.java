@@ -94,7 +94,6 @@ public class UserService {
 
     public void modify(UserDTO.ResponseDTO userDTO) {
 
-
         User loginUser = getLoginUser();
 
         loginUser.setAddress(userDTO.getAddress());
@@ -112,6 +111,10 @@ public class UserService {
         User loginUser = getLoginUser();
 
         loginUser.addRole(UserRoles.ADMIN);
+        Cart cart = cartRepository.findByUserId(loginUser.getId());
+        if(cart != null){
+            cartRepository.delete(cart);
+        }
         userRepository.save(loginUser);
     }
 
