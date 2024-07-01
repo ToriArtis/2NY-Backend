@@ -8,7 +8,9 @@ import lombok.*;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -64,14 +66,18 @@ public class User  implements Principal{
     @Builder.Default
     private UserStatus userStatus = UserStatus.USER_ACTIVE; // 기본값을 USER_ACTIVE로 설정합니다.
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    //열거형 처리... roleSet
+    @ElementCollection(fetch = FetchType.LAZY)
     @Builder.Default
-    private List<String> roles = new ArrayList<>();
+    private Set<UserRoles> roleSet = new HashSet<>();      //집합을 씀 -> 중복을 제거해야 해서
 
     @Override
     public String getName() {
         return getEmail();
     }
 
+    //addRole 역할 추가
+    public void addRole(UserRoles role) { this.roleSet.add(role); }
+    public void claerRoles() { this.roleSet.clear(); }
 
 }
