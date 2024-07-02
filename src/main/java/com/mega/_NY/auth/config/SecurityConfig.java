@@ -2,6 +2,7 @@ package com.mega._NY.auth.config;
 
 import com.mega._NY.auth.jwt.JwtAuthenticationFilter;
 import com.mega._NY.auth.service.CustomUserDetailsService;
+import com.mega._NY.auth.service.OAuth2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
@@ -26,6 +25,7 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter; // JWT 인증 필터 의존성 주입
     private final CustomUserDetailsService userDetailsService;
+    private final OAuth2Service oAuth2Service;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -37,15 +37,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 나머지 모든 요청은 인증 필요
                         .requestMatchers("/", "/users/**").permitAll()
+                        .requestMatchers("/oauth/loginInfo").authenticated()  // 이 줄을 변경
                         .anyRequest().authenticated()
                 )
-
                 // HTTP 기본 인증 비활성화
                 .httpBasic(httpBasic -> httpBasic.disable())
-
+                .oauth2Login(oauth2Login -> {
+                    oauth2Login
+                            .defaultSuccessUrl("/oauth/loginInfo", true)  // 로그인 성공 후 리다이렉트 URL 변경
+                            .userInfoEndpoint(userInfoEndpoint ->
+                                    userInfoEndpoint.userService(oAuth2Service));
+                })
                 // 세션 관리 설정을 무상태(stateless)로 설정
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 );
 
         // JWT 인증 필터를 CORS 필터 이후에 추가
@@ -61,6 +66,5 @@ public class SecurityConfig {
         // 설정된 SecurityFilterChain 반환
         return http.build();
     }
-
 
 }
