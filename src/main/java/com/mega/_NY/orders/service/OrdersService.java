@@ -8,6 +8,7 @@ import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.entity.ItemCart;
 import com.mega._NY.cart.service.CartService;
 import com.mega._NY.cart.service.ItemCartService;
+import com.mega._NY.item.service.ItemService;
 import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.entity.OrderStatus;
 import com.mega._NY.orders.entity.Orders;
@@ -35,6 +36,7 @@ public class OrdersService {
     private final CartService cartService;
     private final UserRepository userRepository;
     private final ItemCartService itemCartService;
+    private final ItemService itemService;
 
     // 새로운 주문 생성
     public Orders createOrder(List<ItemOrders> itemOrders, Long userId) {
@@ -146,11 +148,15 @@ public class OrdersService {
 
         // buyNow 상태 업데이트
         completedOrder.getItemOrders().forEach(io -> {
+            // 장바구니에서 주문한 경우
             Cart cart = cartService.findMyCart(order.getUserId());
             cart.getItemCarts().stream()
                     .filter(itemCart -> itemCart.getItem().getItemId().equals(io.getItem().getItemId()))
                     .findFirst()
                     .ifPresent(itemCart -> itemCartService.excludeItemCart(itemCart.getItemCartId(), true));
+
+            // 직접 주문한 경우 (ItemOrders의 buyNow 상태를 업데이트)
+            itemOrdersService.updateBuyNowStatus(io.getItem().getItemId(), order.getUserId(), true);
         });
 
         return completedOrder;
