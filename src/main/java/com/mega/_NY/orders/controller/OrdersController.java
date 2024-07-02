@@ -13,6 +13,7 @@ import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.entity.Orders;
 import com.mega._NY.orders.mapper.ItemOrdersMapper;
 import com.mega._NY.orders.mapper.OrdersMapper;
+import com.mega._NY.orders.repository.OrdersRepository;
 import com.mega._NY.orders.service.OrdersService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -40,6 +41,7 @@ public class OrdersController {
     private final OrdersMapper ordersMapper;
     private final ItemRepository itemRepository;
     private final UserService userService;
+    private final OrdersRepository ordersRepository;
 
     private boolean isUser() {
         User loginUser = userService.getLoginUser();
@@ -81,14 +83,25 @@ public class OrdersController {
 
     // 주문 목록 조회
     @GetMapping({"/list"})
-    public ResponseEntity<Page<OrdersDTO>> getOrders(@RequestParam(defaultValue = "1") int page,
-                                                     @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<OrdersDTO>> getOrders(@RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "6") int size) {
         if (!isUser()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         Long userId = userService.getLoginUser().getId();
         Page<Orders> orders = ordersService.findOrders(userId, page, size);
+        return ResponseEntity.ok(orders.map(ordersMapper::orderToOrdersDTO));
+    }
+
+    // 모든 주문 목록 조회
+    @GetMapping({"/all"})
+    public ResponseEntity<Page<OrdersDTO>> getAllOrders(@RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "6") int size) {
+        if (!isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Page<Orders> orders = ordersService.findAllOrders(page, size);
         return ResponseEntity.ok(orders.map(ordersMapper::orderToOrdersDTO));
     }
 
