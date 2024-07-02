@@ -46,12 +46,13 @@ public class SecurityConfig {
                 )
                 // HTTP 기본 인증 비활성화
                 .httpBasic(httpBasic -> httpBasic.disable())
-                .oauth2Login(oauth2Login -> {
-                    oauth2Login
-                            .defaultSuccessUrl("/oauth/loginInfo", true)  // 로그인 성공 후 리다이렉트 URL 변경
-                            .userInfoEndpoint(userInfoEndpoint ->
-                                    userInfoEndpoint.userService(oAuth2Service));
-                })
+//                .oauth2Login(oauth2Login -> {
+//                    oauth2Login
+//                            .defaultSuccessUrl("/oauth/loginInfo", true)  // 로그인 성공 후 리다이렉트 URL 변경
+//                            .userInfoEndpoint(userInfoEndpoint ->
+//                                    userInfoEndpoint.userService(oAuth2Service));
+//                })
+
                 // 세션 관리 설정을 무상태(stateless)로 설정
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
