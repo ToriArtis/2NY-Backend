@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,7 +30,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(httpSecurityCorsConfigurer -> {})
+        http.cors(httpSecurityCorsConfigurer -> {
+                })
                 // CSRF 보호 비활성화
                 .csrf(csrf -> csrf.disable())
 
@@ -38,6 +40,8 @@ public class SecurityConfig {
                         // 나머지 모든 요청은 인증 필요
                         .requestMatchers("/", "/users/**").permitAll()
                         .requestMatchers("/oauth/loginInfo").authenticated()  // 이 줄을 변경
+                        .requestMatchers("/items/info").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/items/**").permitAll() // GET 요청에 대해 모든 /items/** 경로 허용
                         .anyRequest().authenticated()
                 )
                 // HTTP 기본 인증 비활성화

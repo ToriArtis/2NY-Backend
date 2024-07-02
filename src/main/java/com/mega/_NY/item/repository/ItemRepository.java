@@ -4,6 +4,8 @@ import com.mega._NY.item.entity.Item;
 import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
 import com.mega._NY.item.entity.ItemSize;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,30 +16,29 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
     // 제목으로 검색
-    List<Item> findByTitleContainingIgnoreCase(String title);
+    Page<Item> findByTitle(String title, Pageable pageable);
 
     // 내용으로 검색
-    List<Item> findByContentContainingIgnoreCase(String content);
+    Page<Item> findByContent(String content, Pageable pageable);
 
     // 제목 또는 내용으로 검색
-    @Query("SELECT i FROM Item i WHERE LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(i.content) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<Item> findByTitleOrContentContainingIgnoreCase(@Param("keyword") String keyword);
+    Page<Item> findByTitleOrContent(String title, String content, Pageable pageable);
 
-    //카테고리별 검색
-    List<Item> findByCategory(ItemCategory category);
+    // 카테고리별 검색
+    Page<Item> findByCategory(ItemCategory category, Pageable pageable);
 
-    //높은 가격순
-    List<Item> findAllByOrderByPriceDesc();
+    // 높은 가격순
+    Page<Item> findAllByOrderByPriceDesc(Pageable pageable);
 
     // 낮은 가격순
-    List<Item> findAllByOrderByPriceAsc();
+    Page<Item> findAllByOrderByPriceAsc(Pageable pageable);
 
     // 색상 필터
-    List<Item> findByColor(ItemColor color);
+    Page<Item> findByColor(ItemColor color, Pageable pageable);
 
     // 사이즈 필터
-    List<Item> findBySize(ItemSize size);
+    Page<Item> findBySize(ItemSize size, Pageable pageable);
 
     // 색상&사이즈 필터
-    List<Item> findByColorAndSize(ItemColor color, ItemSize size);
+    Page<Item> findByColorAndSize(ItemColor color, ItemSize size, Pageable pageable);
 }

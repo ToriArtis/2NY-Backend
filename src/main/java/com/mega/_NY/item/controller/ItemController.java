@@ -10,6 +10,8 @@ import com.mega._NY.item.entity.ItemSize;
 import com.mega._NY.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -80,9 +82,9 @@ public class ItemController {
 
     // 상품 목록 조회
     @GetMapping
-    public ResponseEntity<List<ItemDTO>> getItems() {
-        List<ItemDTO> itemDTOList = itemService.getItems();
-        return ResponseEntity.ok(itemDTOList);
+    public ResponseEntity<Page<ItemDTO>> getItems(Pageable pageable) {
+        Page<ItemDTO> itemDTOPage = itemService.getItems(pageable);
+        return ResponseEntity.ok(itemDTOPage);
     }
 
     // 상품 수정
@@ -107,43 +109,44 @@ public class ItemController {
 
     // 카테고리별 상품 조회
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<ItemDTO>> getItemsByCategory(@PathVariable ItemCategory category) {
-        List<ItemDTO> items = itemService.getItemsByCategory(category);
-        return ResponseEntity.ok(items);
+    public ResponseEntity<Page<ItemDTO>> getItemsByCategory(@PathVariable ItemCategory category, Pageable pageable) {
+        Page<ItemDTO> itemDTOPage = itemService.getItemsByCategory(category, pageable);
+        return ResponseEntity.ok(itemDTOPage);
     }
 
     // 높은 가격순으로 조회
     @GetMapping("/price/desc")
-    public ResponseEntity<List<ItemDTO>> getItemsByPriceDesc() {
-        List<ItemDTO> itemDTOList = itemService.getItemsByPriceDesc();
-        return ResponseEntity.ok(itemDTOList);
+    public ResponseEntity<Page<ItemDTO>> getItemsByPriceDesc(Pageable pageable) {
+        Page<ItemDTO> itemDTOPage = itemService.getItemsByPriceDesc(pageable);
+        return ResponseEntity.ok(itemDTOPage);
     }
 
     // 낮은 가격순으로 조회
     @GetMapping("/price/asc")
-    public ResponseEntity<List<ItemDTO>> getItemsByPriceAsc() {
-        List<ItemDTO> itemDTOList = itemService.getItemsByPriceAsc();
-        return ResponseEntity.ok(itemDTOList);
+    public ResponseEntity<Page<ItemDTO>> getItemsByPriceAsc(Pageable pageable) {
+        Page<ItemDTO> itemDTOPage = itemService.getItemsByPriceAsc(pageable);
+        return ResponseEntity.ok(itemDTOPage);
     }
 
     // 색상&사이즈 필터
     @GetMapping("/filter")
-    public ResponseEntity<List<ItemDTO>> getItemsByFilter(
+    public ResponseEntity<Page<ItemDTO>> getItemsByFilter(
             @RequestParam(required = false) ItemColor color,
-            @RequestParam(required = false) ItemSize size) {
+            @RequestParam(required = false) ItemSize size,
+            Pageable pageable) {
 
-        List<ItemDTO> itemDTOList;
+        Page<ItemDTO> itemDTOPage;
 
         if (color != null && size != null) {
-            itemDTOList = itemService.getItemsByColorAndSize(color, size);
+            itemDTOPage = itemService.getItemsByColorAndSize(color, size, pageable);
         } else if (color != null) {
-            itemDTOList = itemService.getItemsByColor(color);
+            itemDTOPage = itemService.getItemsByColor(color, pageable);
         } else if (size != null) {
-            itemDTOList = itemService.getItemsBySize(size);
+            itemDTOPage = itemService.getItemsBySize(size, pageable);
         } else {
-            itemDTOList = itemService.getItems();
+            itemDTOPage = itemService.getItems(pageable);
         }
 
-        return ResponseEntity.ok(itemDTOList);
+        return ResponseEntity.ok(itemDTOPage);
     }
 }
