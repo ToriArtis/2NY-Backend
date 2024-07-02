@@ -46,6 +46,11 @@ public class OrdersController {
         return loginUser.getRoleSet().contains(UserRoles.USER);
     }
 
+    private boolean isAdmin() {
+        User loginUser = userService.getLoginUser();
+        return loginUser.getRoleSet().contains(UserRoles.ADMIN);
+    }
+
     // 새로운 주문 생성
     @PostMapping
     public ResponseEntity<OrdersDTO> createOrder(@RequestBody @Valid List<ItemOrderDTO> itemOrderDtos) {
@@ -76,7 +81,7 @@ public class OrdersController {
 
     // 주문 목록 조회
     @GetMapping({"/list"})
-    public ResponseEntity<Page<OrdersDTO>> getOrders(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<OrdersDTO>> getOrders(@RequestParam(defaultValue = "1") int page,
                                                      @RequestParam(defaultValue = "10") int size) {
         if (!isUser()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -97,6 +102,16 @@ public class OrdersController {
         Orders order = ordersService.findOrder(orderId);
         OrdersDTO dto = ordersMapper.orderToOrdersDTO(order);
         return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/{orderId}/complete")
+    public ResponseEntity<OrdersDTO> completeOrder(@PathVariable Long orderId) {
+        if (!isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Orders completedOrder = ordersService.completeOrder(orderId);
+        return ResponseEntity.ok(ordersMapper.orderToOrdersDTO(completedOrder));
     }
 
     // 주문 취소
