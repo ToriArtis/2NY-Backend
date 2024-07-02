@@ -35,7 +35,7 @@ public class CartController {
 
     // 장바구니 목록 조회
     @GetMapping("/list")
-    public ResponseEntity<Page<CartDTO>> getOrders(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<CartDTO>> getOrders(@RequestParam(defaultValue = "1") int page,
                                                    @RequestParam(defaultValue = "10") int size) {
         if (!isUser()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

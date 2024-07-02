@@ -7,6 +7,7 @@ import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.entity.ItemCart;
 import com.mega._NY.cart.service.CartService;
+import com.mega._NY.cart.service.ItemCartService;
 import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.entity.OrderStatus;
 import com.mega._NY.orders.entity.Orders;
@@ -33,6 +34,7 @@ public class OrdersService {
     private final ItemOrdersService itemOrdersService;
     private final CartService cartService;
     private final UserRepository userRepository;
+    private final ItemCartService itemCartService;
 
     // 새로운 주문 생성
     public Orders createOrder(List<ItemOrders> itemOrders, Long userId) {
@@ -130,6 +132,23 @@ public class OrdersService {
         itemOrder.setQuantity(itemCart.getQuantity());
         itemOrder.setOrders(order);
         return itemOrdersService.createItemOrder(itemOrder);
+    }
+
+    public Orders completeOrder(Long orderId) {
+        Orders order = findOrder(orderId);
+        order.setOrderStatus(OrderStatus.ORDER_COMPLETE);
+        Orders completedOrder = orderRepository.save(order);
+
+        // buyNow 상태 업데이트
+        completedOrder.getItemOrders().forEach(io -> {
+            Cart cart = cartService.findMyCart(order.getUserId());
+            cart.getItemCarts().stream()
+                    .filter(itemCart -> itemCart.getItem().getItemId().equals(io.getItem().getItemId()))
+                    .findFirst()
+                    .ifPresent(itemCart -> itemCartService.excludeItemCart(itemCart.getItemCartId(), true));
+        });
+
+        return completedOrder;
     }
 
 }

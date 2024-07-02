@@ -1,7 +1,11 @@
 package com.mega._NY.review.service;
 
+import com.mega._NY.auth.config.exception.BusinessLogicException;
+import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.repository.UserRepository;
+import com.mega._NY.cart.entity.Cart;
+import com.mega._NY.cart.service.CartService;
 import com.mega._NY.item.entity.Item;
 import com.mega._NY.item.repository.ItemRepository;
 import com.mega._NY.review.dto.ReviewDTO;
@@ -24,6 +28,7 @@ public class ReviewService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
+    private final CartService cartService;
 
     //리뷰 생성
     @Transactional
@@ -32,6 +37,14 @@ public class ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         User user = userRepository.findById(reviewDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        // 사용자가 해당 상품을 구매했는지 확인
+        boolean hasBought = cartService.findMyCart(user.getId()).getItemCarts().stream()
+                .anyMatch(itemCart -> itemCart.getItem().equals(item) && itemCart.isBuyNow());
+
+        if (!hasBought) {
+            throw new BusinessLogicException(ExceptionCode.REVIEW_NOT_ALLOWED);
+        }
 
         Review review = reviewMapper.toEntity(reviewDTO);
         review.setItem(item);
