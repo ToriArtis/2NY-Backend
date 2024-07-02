@@ -36,7 +36,7 @@ public class UserController {
     @Autowired
     private CartService cartService;
 
-    @PostMapping("/signup")
+    @PostMapping()
     public ResponseEntity<?> registerUser(@RequestBody UserDTO.ResponseDTO userDTO){
         try {
             //서비스를 이용해 리포지터리에 사용자 저장
@@ -82,7 +82,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/info")
+    @GetMapping()
     public ResponseEntity<?> info() {
         try {
             User loginUser = userService.getLoginUser();
@@ -94,7 +94,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/modify")
+    @PutMapping()
     public ResponseEntity<?> modify(@RequestBody UserDTO.ResponseDTO userDTO) {
         try {
             userService.modify(userDTO);
@@ -105,7 +105,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping()
     public ResponseEntity<?> deleteUser() {
         try {
             userService.deleteUser();
