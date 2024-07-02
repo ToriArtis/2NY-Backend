@@ -95,9 +95,14 @@ public class OrdersService {
         return order;
     }
 
-    // 사용자의 주문 목록 조회 (페이지네이션)
+    // 특정 사용자의 주문 목록 조회 (페이지네이션)
     public Page<Orders> findOrders(Long userId, int page, int size) {
         return orderRepository.findAllByUserId(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderId")));
+    }
+
+    // 모든 사용자의 주문 목록 조회 (페이지네이션 / 관리자 기능)
+    public Page<Orders> findAllOrders(int page, int size) {
+        return orderRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderId")));
     }
 
     // 주문 정보 설정 헬퍼 메소드

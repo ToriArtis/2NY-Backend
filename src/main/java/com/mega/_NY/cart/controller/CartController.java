@@ -33,10 +33,10 @@ public class CartController {
         return loginUser.getRoleSet().contains(UserRoles.USER);
     }
 
-    // 장바구니 목록 조회
+    // 장바구니 목록 조회 (페이지네이션)
     @GetMapping("/list")
-    public ResponseEntity<Page<CartDTO>> getOrders(@RequestParam(defaultValue = "1") int page,
-                                                   @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<CartDTO>> getOrders(@RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "6") int size) {
         if (!isUser()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
