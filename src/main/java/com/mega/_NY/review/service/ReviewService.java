@@ -4,7 +4,6 @@ import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.repository.UserRepository;
-import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.service.CartService;
 import com.mega._NY.item.entity.Item;
 import com.mega._NY.item.repository.ItemRepository;
@@ -13,12 +12,12 @@ import com.mega._NY.review.entity.Review;
 import com.mega._NY.review.mapper.ReviewMapper;
 import com.mega._NY.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -66,18 +65,16 @@ public class ReviewService {
 
     //사용자 리뷰 조회
     @Transactional(readOnly = true)
-    public List<ReviewDTO> getReviewsByUserId(Long userId) {
-        return reviewRepository.findByUserId(userId).stream()
-                .map(reviewMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ReviewDTO> getReviewsByUserId(Long userId, Pageable pageable) {
+        Page<Review> reviewPage = reviewRepository.findByUserId(userId, pageable);
+        return reviewPage.map(reviewMapper::toDTO);
     }
 
     //특정 상품 리뷰 조회
     @Transactional(readOnly = true)
-    public List<ReviewDTO> getReviewsByItemId(Long itemId) {
-        return reviewRepository.findByItemItemId(itemId).stream()
-                .map(reviewMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ReviewDTO> getReviewsByItemId(Long itemId, Pageable pageable) {
+        return reviewRepository.findByItemItemId(itemId, pageable)
+                .map(reviewMapper::toDTO);
     }
 
     //리뷰 수정
