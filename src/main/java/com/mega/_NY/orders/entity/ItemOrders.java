@@ -43,6 +43,9 @@ public class ItemOrders {
     @Column
     private int discountPrice; // 개별 상품 할인 가격
 
+    @Column(nullable = false)
+    private boolean buyNow;
+
     public void calculatePrices() {
         this.totalPrice = this.quantity * this.price;
     }

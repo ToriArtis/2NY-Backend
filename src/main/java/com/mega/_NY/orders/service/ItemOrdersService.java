@@ -4,6 +4,7 @@ import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.item.entity.Item;
 import com.mega._NY.item.repository.ItemRepository;
+import com.mega._NY.orders.dto.ItemOrderDTO;
 import com.mega._NY.orders.entity.ItemOrders;
 import com.mega._NY.orders.repository.ItemOrdersRepository;
 import jakarta.transaction.Transactional;
@@ -78,5 +79,20 @@ public class ItemOrdersService {
         item.setSales(item.getSales() + salesChange);
         itemRepository.save(item);
     }
+
+    // 주문 완료 시 buyNow 상태 업데이트
+    public void updateBuyNowStatus(Long itemId, Long userId, boolean buyNow) {
+        List<ItemOrders> itemOrders = itemOrderRepository.findByItemItemIdAndOrdersUserId(itemId, userId);
+        itemOrders.forEach(itemOrder -> {
+            itemOrder.setBuyNow(buyNow);
+            itemOrderRepository.save(itemOrder);
+        });
+    }
+
+    // 사용자가 아이템을 구매했는지 확인
+    public boolean hasUserPurchasedItem(Long userId, Long itemId) {
+        return itemOrderRepository.existsByItemItemIdAndOrdersUserIdAndBuyNowTrue(itemId, userId);
+    }
+
 
 }

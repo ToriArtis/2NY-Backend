@@ -6,8 +6,10 @@ import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.dto.CartDTO;
 import com.mega._NY.cart.entity.Cart;
+import com.mega._NY.cart.entity.ItemCart;
 import com.mega._NY.cart.mapper.CartMapper;
 import com.mega._NY.cart.repository.CartRepository;
+import com.mega._NY.cart.repository.ItemCartRepository;
 import com.mega._NY.cart.util.EntityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartMapper cartMapper;
     private final ItemCartService itemCartService;
+    private final ItemCartRepository itemCartRepository;
 
     // 장바구니 생성
     public Cart createCart(User user) {
@@ -58,9 +61,9 @@ public class CartService {
         return cartMapper.toDTO(cart);
     }
 
-    // 사용자의 주문 목록 조회 (페이지네이션)
-    public Page<Cart> findCarts(Long userId, int page, int size) {
-        return cartRepository.findAllByUserId(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "cartId")));
+    // 사용자의 장바구니 목록 조회 (페이지네이션)
+    public Page<ItemCart> findCartItems(Long userId, int page, int size) {
+        return itemCartRepository.findAllByCartUserId(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "itemCartId")));
     }
 
     public Cart findVerifiedCart(long cartId) {
