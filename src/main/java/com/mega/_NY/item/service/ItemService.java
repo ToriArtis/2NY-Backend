@@ -7,6 +7,8 @@ import com.mega._NY.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -158,79 +160,71 @@ public class ItemService {
 
     // 제목으로 검색
     @Transactional(readOnly = true)
-    public List<ItemDTO> searchByTitle(String title) {
-        return itemRepository.findByTitleContainingIgnoreCase(title).stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> searchByTitle(String title, Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findByTitle(title, pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 
     // 내용으로 검색
     @Transactional(readOnly = true)
-    public List<ItemDTO> searchByContent(String content) {
-        return itemRepository.findByContentContainingIgnoreCase(content).stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> searchByContent(String content, Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findByContent(content, pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 
     // 제목 또는 내용으로 검색
     @Transactional(readOnly = true)
-    public List<ItemDTO> searchByTitleOrContent(String keyword) {
-        return itemRepository.findByTitleOrContentContainingIgnoreCase(keyword).stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> searchByTitleOrContent(String keyword, Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findByTitleOrContent(keyword, keyword, pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 
-    // 카테고리별 상품 조회
+    // 모든 상품 조회
     @Transactional(readOnly = true)
-    public List<ItemDTO> getItemsByCategory(ItemCategory category) {
-        List<Item> items = itemRepository.findByCategory(category);
-        return items.stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> getItems(Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findAll(pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 
-    // 높은 가격순 조회
+    // 카테고리별로 상품 조회
     @Transactional(readOnly = true)
-    public List<ItemDTO> getItemsByPriceDesc() {
-        List<Item> items = itemRepository.findAllByOrderByPriceDesc();
-        return items.stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> getItemsByCategory(ItemCategory category, Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findByCategory(category, pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 
-    // 낮은 가격순 조회
+    // 높은 가격순 상품 조회
     @Transactional(readOnly = true)
-    public List<ItemDTO> getItemsByPriceAsc() {
-        List<Item> items = itemRepository.findAllByOrderByPriceAsc();
-        return items.stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> getItemsByPriceDesc(Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findAllByOrderByPriceDesc(pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 
-    // 색상 필터
+    // 낮은 가격순 상품 조회
     @Transactional(readOnly = true)
-    public List<ItemDTO> getItemsByColor(ItemColor color) {
-        List<Item> items = itemRepository.findByColor(color);
-        return items.stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> getItemsByPriceAsc(Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findAllByOrderByPriceAsc(pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 
-    // 사이즈 필터
+    // 색상별 상품 필터링
     @Transactional(readOnly = true)
-    public List<ItemDTO> getItemsBySize(ItemSize size) {
-        List<Item> items = itemRepository.findBySize(size);
-        return items.stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> getItemsByColor(ItemColor color, Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findByColor(color, pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 
-    // 색상&사이즈 필터
+    // 사이즈별 상품 필터링
     @Transactional(readOnly = true)
-    public List<ItemDTO> getItemsByColorAndSize(ItemColor color, ItemSize size) {
-        List<Item> items = itemRepository.findByColorAndSize(color, size);
-        return items.stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ItemDTO> getItemsBySize(ItemSize size, Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findBySize(size, pageable);
+        return itemPage.map(itemMapper::toDTO);
+    }
+
+    // 색상, 사이즈 필터링 모두 적용
+    @Transactional(readOnly = true)
+    public Page<ItemDTO> getItemsByColorAndSize(ItemColor color, ItemSize size, Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findByColorAndSize(color, size, pageable);
+        return itemPage.map(itemMapper::toDTO);
     }
 }
