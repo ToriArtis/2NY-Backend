@@ -98,4 +98,13 @@ public class ReviewService {
         reviewRepository.deleteById(reviewId);
     }
 
+    // 상품 별점 평점 계산
+    @Transactional(readOnly = true)
+    public double getAvgStarByItemId(Long itemId) {
+        return reviewRepository.findByItemItemId(itemId)
+                .stream()
+                .mapToDouble(Review::getStar) // 각 리뷰의 별점을 모아 DoubleStream으로 변환
+                .average() // DoubleStream의 평균값 계산
+                .orElse(0.0); // 리뷰가 없는 경우 기본값 0 반환
+    }
 }
