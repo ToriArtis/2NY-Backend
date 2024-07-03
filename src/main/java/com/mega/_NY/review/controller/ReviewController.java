@@ -32,7 +32,7 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<ReviewDTO> createReview(@RequestBody ReviewDTO reviewDTO){
         ReviewDTO createdReview = reviewService.createReview(reviewDTO);
-        return ResponseEntity.ok(reviewDTO);
+        return ResponseEntity.ok(createdReview);
     }
 
     //특정 id 리뷰 조회
