@@ -17,7 +17,5 @@ public class ItemOrderDTO {
     private int quantity;     // 주문 수량
     private int price;        // 개별 아이템 가격
     private int totalPrice;   // 수량 * 가격
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
 }
