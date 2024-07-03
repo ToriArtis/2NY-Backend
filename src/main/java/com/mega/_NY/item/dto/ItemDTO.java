@@ -35,4 +35,7 @@ public class ItemDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private double avgStar;
+
+
 }

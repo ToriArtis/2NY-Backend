@@ -8,6 +8,7 @@ import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
 import com.mega._NY.item.entity.ItemSize;
 import com.mega._NY.item.service.ItemService;
+import com.mega._NY.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class ItemController {
 
     private final ItemService itemService;
     private final UserService userService;
+    private final ReviewService reviewService;
 
     private boolean isAdmin() {
         User loginUser = userService.getLoginUser();
@@ -77,6 +79,11 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemDTO> getItem(@PathVariable Long itemId) {
         ItemDTO itemDTO = itemService.getItem(itemId);
+
+        // 별점 평점 계산
+        double averageStar = reviewService.getAvgStarByItemId(itemId);
+        itemDTO.setAvgStar(averageStar);
+
         return ResponseEntity.ok(itemDTO);
     }
 
