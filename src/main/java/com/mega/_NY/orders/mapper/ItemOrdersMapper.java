@@ -22,8 +22,6 @@ public interface ItemOrdersMapper {
     @Mapping(target = "itemTitle", source = "item.title")
     @Mapping(target = "price", source = "item.price")
     @Mapping(target = "totalPrice", expression = "java(itemOrders.getQuantity() * itemOrders.getItem().getPrice())")
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     ItemOrderDTO itemOrderToItemOrderDto(ItemOrders itemOrders);
 
     List<ItemOrders> itemOrderDtosToItemOrders(List<ItemOrderDTO> itemOrderDtos);
