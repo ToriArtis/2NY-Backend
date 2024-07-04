@@ -134,5 +134,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDTO);
         }
     }
+    @PostMapping("/password")
+    public ResponseEntity<Boolean> passwordModify(@RequestBody LoginDTO request) {
+        User user = userService.getByCredentials(request.getEmail(), request.getPassword());
 
+        if (user != null) {
+            log.info("Password successfully");
+            return ResponseEntity.ok().body(true);
+        } else {
+            return ResponseEntity.badRequest().body(false);
+        }
+    }
 }

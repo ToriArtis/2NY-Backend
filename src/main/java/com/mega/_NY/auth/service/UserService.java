@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -153,6 +154,17 @@ public class UserService {
         return user.get().getId();
     }
 
+    public Boolean passwordVaild(String password){
+        log.info("Received password: " + password);
+        User onlineUser = getLoginUser();
+        log.info("Received password: " + onlineUser);
 
+        if (passwordEncoder.matches(password, onlineUser.getPassword())) {
+            log.info("Password changed successfully");
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }
