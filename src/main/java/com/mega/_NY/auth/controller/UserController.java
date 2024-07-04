@@ -70,6 +70,8 @@ public class UserController {
             final UserDTO.LoginDTO responseUserDTO = UserDTO.LoginDTO.builder()
                     .email(user.getEmail())
                     .token(token)
+                    .nickName(user.getNickName())
+                    .roleSet(user.getRoleSet() )
                     .build();
             return ResponseEntity.ok().body(responseUserDTO);
         }
