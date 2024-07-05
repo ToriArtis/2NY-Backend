@@ -74,7 +74,9 @@ public class UserService {
         final User onlineUser = userRepository.findByEmail(email).orElseThrow();
 
         // 사용자가 존재하고 비밀번호가 일치하는지 확인
-        if (onlineUser != null && passwordEncoder.matches(password, onlineUser.getPassword())) {
+        if (onlineUser != null
+                && passwordEncoder.matches(password, onlineUser.getPassword())
+                && onlineUser.getUserStatus() == UserStatus.USER_ACTIVE) {
             // 비밀번호가 일치하면 사용자 객체를 반환
             return onlineUser;
         }
