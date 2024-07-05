@@ -1,6 +1,7 @@
 package com.mega._NY.item.service;
 
 import com.mega._NY.item.dto.ItemDTO;
+import com.mega._NY.item.dto.ItemTest;
 import com.mega._NY.item.dto.ItemWithReviewsDTO;
 import com.mega._NY.item.entity.*;
 import com.mega._NY.item.mapper.ItemMapper;
@@ -8,6 +9,8 @@ import com.mega._NY.item.repository.ItemRepository;
 import com.mega._NY.review.dto.ReviewDTO;
 import com.mega._NY.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -53,6 +57,18 @@ public class ItemService {
 
         Item savedItem = itemRepository.save(item);
         return itemMapper.toDTO(savedItem);
+    }
+
+    public ItemTest createItem(ItemTest itemDTO) throws Exception {
+        Item item = Item.builder()
+                .title(itemDTO.getTitle())
+                .content(itemDTO.getContent())
+                .price(itemDTO.getPrice())
+                .build();
+
+        log.info("1111111111111111111"+item.toString());
+        Item savedItem = itemRepository.save(item);
+        return itemDTO;
     }
 
     private List<String> uploadImages(List<MultipartFile> files) throws Exception {
