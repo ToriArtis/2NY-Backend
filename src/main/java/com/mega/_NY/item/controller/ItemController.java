@@ -4,6 +4,7 @@ import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.entity.UserRoles;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.item.dto.ItemDTO;
+import com.mega._NY.item.dto.ItemTest;
 import com.mega._NY.item.dto.ItemWithReviewsDTO;
 import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
@@ -12,6 +13,7 @@ import com.mega._NY.item.service.ItemService;
 import com.mega._NY.review.dto.ReviewDTO;
 import com.mega._NY.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,8 +26,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+@Log4j2
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -45,13 +49,34 @@ public class ItemController {
     public ResponseEntity<ItemDTO> createItem(
             @RequestPart ItemDTO itemDTO,
             @RequestParam(value = "thumbnailFiles", required = false) List<MultipartFile> thumbnailFiles,
-            @RequestParam(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) {
+            @RequestParam(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) throws IOException {
+
         if (!isAdmin()) {
+            log.warn("User is not admin");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+
         try {
             ItemDTO createdItemDTO = itemService.createItem(itemDTO, thumbnailFiles, descriptionImageFiles);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdItemDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // 상품 등록
+    @PostMapping("/test")
+    public ResponseEntity<?> test(
+            @RequestBody ItemTest test) {
+
+        if (!isAdmin()) {
+            log.warn("User is not admin");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        try {
+            ItemTest createdItemDTO = itemService.createItem(test);
+            return ResponseEntity.ok().body(createdItemDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -168,4 +193,6 @@ public class ItemController {
 
         return ResponseEntity.ok(itemDTOPage);
     }
+
+
 }
