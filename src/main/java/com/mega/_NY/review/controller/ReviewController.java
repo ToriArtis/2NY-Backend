@@ -93,7 +93,7 @@ public class ReviewController {
 
     //리뷰 삭제
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<ReviewDTO> deleteReview(@PathVariable Long reviewId){
+    public ResponseEntity<?> deleteReview(@PathVariable Long reviewId){
 
         if (!isUser()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -107,7 +107,7 @@ public class ReviewController {
         }
 
         reviewService.deleteReview(reviewId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body(true);
 
     }
 }
