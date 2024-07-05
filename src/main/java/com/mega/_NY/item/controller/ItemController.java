@@ -4,14 +4,17 @@ import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.entity.UserRoles;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.item.dto.ItemDTO;
+import com.mega._NY.item.dto.ItemWithReviewsDTO;
 import com.mega._NY.item.entity.ItemCategory;
 import com.mega._NY.item.entity.ItemColor;
 import com.mega._NY.item.entity.ItemSize;
 import com.mega._NY.item.service.ItemService;
+import com.mega._NY.review.dto.ReviewDTO;
 import com.mega._NY.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -77,14 +80,23 @@ public class ItemController {
 
     // 상품 조회
     @GetMapping("/{itemId}")
-    public ResponseEntity<ItemDTO> getItem(@PathVariable Long itemId) {
+    public ResponseEntity<ItemWithReviewsDTO> getItem(
+            @PathVariable Long itemId,
+            @RequestParam(value="page", defaultValue = "0") int page,
+            @RequestParam(value="size", defaultValue="10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
         ItemDTO itemDTO = itemService.getItem(itemId);
 
         // 별점 평점 계산
         double averageStar = reviewService.getAvgStarByItemId(itemId);
         itemDTO.setAvgStar(averageStar);
 
-        return ResponseEntity.ok(itemDTO);
+        // 리뷰 조회
+        Page<ReviewDTO> reviews = reviewService.getReviewsByItemId(itemId, pageable);
+
+        ItemWithReviewsDTO itemWithReviews = new ItemWithReviewsDTO(itemDTO, reviews);
+        return ResponseEntity.ok(itemWithReviews);
     }
 
     // 상품 목록 조회
