@@ -5,21 +5,17 @@ import com.mega._NY.auth.dto.LoginDTO;
 import com.mega._NY.auth.dto.ResponseDTO;
 import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.User;
-import com.mega._NY.auth.entity.UserRoles;
 import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.UserService;
-import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @Log4j2
@@ -100,7 +96,7 @@ public class UserController {
     public ResponseEntity<?> modify(@RequestBody UserDTO.ResponseDTO userDTO) {
         try {
             userService.modify(userDTO);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(userDTO);
         } catch (BusinessLogicException e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
             return ResponseEntity.badRequest().body(responseDTO);
@@ -111,7 +107,7 @@ public class UserController {
     public ResponseEntity<?> deleteUser() {
         try {
             userService.deleteUser();
-            return ResponseEntity.noContent().build(); // 204 No Content
+            return ResponseEntity.ok().body(true);
         } catch (BusinessLogicException e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
             return ResponseEntity.badRequest().body(responseDTO);
