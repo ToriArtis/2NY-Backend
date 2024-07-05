@@ -1,9 +1,12 @@
 package com.mega._NY.item.service;
 
 import com.mega._NY.item.dto.ItemDTO;
+import com.mega._NY.item.dto.ItemWithReviewsDTO;
 import com.mega._NY.item.entity.*;
 import com.mega._NY.item.mapper.ItemMapper;
 import com.mega._NY.item.repository.ItemRepository;
+import com.mega._NY.review.dto.ReviewDTO;
+import com.mega._NY.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -29,6 +32,7 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
+    private final ReviewService reviewService;
 
     // 상품 추가
     @Transactional
@@ -105,6 +109,15 @@ public class ItemService {
         return itemDTO;
 
     }
+
+    // 상품 상세 + 리뷰 조회
+    public ItemWithReviewsDTO getItemWithReviews(Long itemId, Pageable pageable) {
+        ItemDTO itemDTO = getItem(itemId);
+        Page<ReviewDTO> reviews = reviewService.getReviewsByItemId(itemId, pageable);
+
+        return new ItemWithReviewsDTO(itemDTO, reviews);
+    }
+
 
     // 상품 목록 조회
     @Transactional(readOnly = true)
