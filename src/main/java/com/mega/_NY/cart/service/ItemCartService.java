@@ -78,7 +78,8 @@ public class ItemCartService {
     public void updateCartTotals(Cart cart) {
         List<ItemCartDTO> itemCarts = findItemCarts(cart, null);
         int totalPrice = calculateTotalPrice(itemCarts);
-        int totalDiscountPrice = calculateTotalDiscountPrice(itemCarts);
+        int totalDiscountPrice = calculateTotalDiscountedPrice(itemCarts);
+        // totalItems: 장바구니에 담긴 아이템의 종류 수 (수량 무관)
         int totalItems = itemCarts.size();
 
         cart.setTotalPrice(totalPrice);
@@ -89,37 +90,23 @@ public class ItemCartService {
     private int calculateTotalPrice(List<ItemCartDTO> itemCarts) {
         if(itemCarts == null) return 0;
 
-        int totalPrice = 0;
-
-        for(ItemCartDTO itemCart : itemCarts) {
-            int quantity = itemCart.getQuantity();
-            int price = itemCart.getPrice();
-            totalPrice += (quantity * price);
-        }
-
-        return totalPrice;
+        return itemCarts.stream()
+                .mapToInt(itemCart -> itemCart.getQuantity() * itemCart.getPrice())
+                .sum();
     }
 
-    private int calculateTotalDiscountPrice(List<ItemCartDTO> itemCarts) {
+    private int calculateTotalDiscountedPrice(List<ItemCartDTO> itemCarts) {
         if(itemCarts == null) return 0;
 
-        int totalDiscountPrice = 0;
-
-        for(ItemCartDTO itemCart : itemCarts) {
-            int quantity = itemCart.getQuantity();
-            int price = itemCart.getPrice();
-            int discountRate = itemCart.getDiscountRate();
-
-            totalDiscountPrice += (quantity * price * discountRate/100);
-        }
-
-        return totalDiscountPrice;
+        return itemCarts.stream()
+                .mapToInt(this::calculateItemDiscountedPrice)
+                .sum();
 
     }
 
-    // 장바구니에 담긴 상품 수
-    private int countTotalItems(List<ItemCartDTO> itemCarts) {
-        return itemCarts.size();
+    // 개별 아이템의 할인된 가격
+    private int calculateItemDiscountedPrice(ItemCartDTO itemCart) {
+        return itemCart.getQuantity() * itemCart.getDiscountPrice();
     }
 
     private ItemCart findVerifiedItemCart(long itemCartId) {

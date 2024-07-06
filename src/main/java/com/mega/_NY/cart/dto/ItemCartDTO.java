@@ -3,6 +3,9 @@ package com.mega._NY.cart.dto;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,5 +19,8 @@ public class ItemCartDTO {
     private int quantity;
     private int price;
     private int discountRate;
+    private int discountPrice;
+
+    private List<String> thumbnail = new ArrayList<>();
 
 }
