@@ -15,6 +15,7 @@ public interface ItemCartMapper {
     @Mapping(source = "item.discountRate", target = "discountRate")
     @Mapping(source = "item.discountPrice", target = "discountPrice")
     @Mapping(source = "item.thumbnail", target = "thumbnail")
+    @Mapping(source = "item.title", target = "itemTitle")
     ItemCartDTO toDTO(ItemCart itemCart);
 
     // ItemCartDTO를 ItemCart 엔티티로 변환
