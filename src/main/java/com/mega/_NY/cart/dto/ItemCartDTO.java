@@ -21,6 +21,8 @@ public class ItemCartDTO {
     private int discountRate;
     private int discountPrice;
 
+    private String itemTitle;
+
     private List<String> thumbnail = new ArrayList<>();
 
 }
