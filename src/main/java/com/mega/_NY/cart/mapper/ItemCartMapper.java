@@ -13,11 +13,14 @@ public interface ItemCartMapper {
     @Mapping(source = "cart.cartId", target = "cartId")
     @Mapping(source = "item.price", target = "price")
     @Mapping(source = "item.discountRate", target = "discountRate")
+    @Mapping(source = "item.discountPrice", target = "discountPrice")
+    @Mapping(source = "item.thumbnail", target = "thumbnail")
     ItemCartDTO toDTO(ItemCart itemCart);
 
     // ItemCartDTO를 ItemCart 엔티티로 변환
     @Mapping(target = "cart", ignore = true)
     @Mapping(target = "item", ignore = true)
+    @Mapping(target = "buyNow", ignore = true)
     ItemCart toEntity(ItemCartDTO itemCartDTO);
 
 }
