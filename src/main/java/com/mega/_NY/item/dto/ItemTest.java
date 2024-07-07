@@ -1,10 +1,15 @@
 package com.mega._NY.item.dto;
 
+import com.mega._NY.item.entity.ItemCategory;
+import com.mega._NY.item.entity.ItemColor;
+import com.mega._NY.item.entity.ItemSize;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,13 +19,7 @@ public class ItemTest {
     private String title;
     private String content;
     private int price;
-
-
-    /*
-    *     private String title;
-    private String content;
     private int sales;
-    private int price;
     private ItemSize size;
     private ItemColor color;
     private ItemCategory category;
@@ -28,8 +27,6 @@ public class ItemTest {
     private int discountPrice;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
     private double avgStar;
-    *
-    * */
+
 }

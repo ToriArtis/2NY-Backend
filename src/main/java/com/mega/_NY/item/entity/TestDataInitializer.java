@@ -47,7 +47,7 @@ public class TestDataInitializer {
 
     private Item createTestItem(Random random, ItemCategory category, ItemColor specificColor) {
         int price = random.nextInt(100000) + 10000; // 10000 ~ 109999 사이의 랜덤 가격
-        int discountRate = random.nextInt(50); // 0 ~ 49% 사이의 랜덤 할인율
+        int discountRate = random.nextInt(20); // 0 ~ 49% 사이의 랜덤 할인율
         int discountPrice = price * (100 - discountRate) / 100;
 
         ItemCategory itemCategory = (category != null) ? category : ItemCategory.values()[random.nextInt(ItemCategory.values().length)];
