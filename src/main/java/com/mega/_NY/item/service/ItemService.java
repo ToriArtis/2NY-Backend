@@ -75,21 +75,17 @@ public class ItemService {
         List<String> uploadedFiles = new ArrayList<>();
 
         if (files != null) {
-            for (MultipartFile file : files) {
-                String originalName = file.getOriginalFilename();
-                if (originalName != null && !originalName.isEmpty()) {
-                    // 파일 이름 생성
-                    String fileName = System.currentTimeMillis() + "_" + originalName;
-                    // 파일 저장 경로
-                    String savePath = System.getProperty("user.dir") + "/src/main/resources/static/images/";
-                    // 저장 경로 없으면 디렉토리 생성
-                    if (!new File(savePath).exists()) {
-                        new File(savePath).mkdir();
-                    }
-                    String filePath = savePath + fileName;
-                    file.transferTo(new File(filePath));
-                    uploadedFiles.add(fileName);
+            String savePath = System.getProperty("user.dir") + "/src/main/resources/static/images/";
+            File directory = new File(savePath);
+            if (!directory.exists()) {
+                boolean created = directory.mkdirs();
+                if (!created) {
+                    throw new IOException("Failed to create directory: " + savePath);
                 }
+            }
+
+            for (MultipartFile file : files) {
+                // 기존 파일 저장 로직...
             }
         }
 

@@ -41,27 +41,36 @@ public class ItemController {
 
     private boolean isAdmin() {
         User loginUser = userService.getLoginUser();
-        return loginUser.getRoleSet().contains(UserRoles.ADMIN);
+        boolean isAdmin = loginUser != null && loginUser.getRoleSet().contains(UserRoles.ADMIN);
+        log.info("User: {}, Is Admin: {}", loginUser != null ? loginUser.getEmail() : "null", isAdmin);
+        return isAdmin;
     }
 
     // 상품 등록
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ItemDTO> createItem(
-            @RequestPart ItemDTO itemDTO,
-            @RequestParam(value = "thumbnailFiles", required = false) List<MultipartFile> thumbnailFiles,
-            @RequestParam(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) throws IOException {
+            @RequestPart("itemDTO") ItemDTO itemDTO,
+            @RequestPart(value = "thumbnailFiles", required = false) List<MultipartFile> thumbnailFiles,
+            @RequestPart(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) {
 
         if (!isAdmin()) {
             log.warn("User is not admin");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
+        log.info("Received itemDTO: {}", itemDTO);
+        log.info("Received thumbnailFiles: {}", thumbnailFiles != null ? thumbnailFiles.size() : "null");
+        log.info("Received descriptionImageFiles: {}", descriptionImageFiles != null ? descriptionImageFiles.size() : "null");
 
         try {
             ItemDTO createdItemDTO = itemService.createItem(itemDTO, thumbnailFiles, descriptionImageFiles);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdItemDTO);
+        } catch (IOException e) {
+            log.error("Error uploading files", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Error creating item", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
