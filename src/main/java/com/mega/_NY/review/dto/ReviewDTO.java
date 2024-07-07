@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,4 +24,5 @@ public class ReviewDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private List<String> thumbnail = new ArrayList<>();
 }
