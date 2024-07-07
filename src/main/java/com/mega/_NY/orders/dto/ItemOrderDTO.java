@@ -1,5 +1,10 @@
 package com.mega._NY.orders.dto;
 
+import com.mega._NY.item.entity.ItemColor;
+import com.mega._NY.item.entity.ItemSize;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 
@@ -19,5 +24,9 @@ public class ItemOrderDTO {
     private int quantity;     // 주문 수량
     private int price;        // 개별 아이템 가격
     private int totalPrice;   // 수량 * 가격
+
+    private ItemSize size;
+    private ItemColor color;
+
 
 }
