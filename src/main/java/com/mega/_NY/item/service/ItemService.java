@@ -144,23 +144,34 @@ public class ItemService {
 
     // 상품 수정
     @Transactional
-    public ItemDTO updateItem(Long itemId, ItemDTO itemDTO) {
+    public ItemDTO updateItem(Long itemId, ItemDTO itemDTO, List<MultipartFile> thumbnailFiles, List<MultipartFile> descriptionImageFiles) throws Exception {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다. itemId=" + itemId));
 
         item.setTitle(itemDTO.getTitle());
         item.setContent(itemDTO.getContent());
-        item.setThumbnail(itemDTO.getThumbnail());
-        item.setDescriptionImage(itemDTO.getDescriptionImage());
         item.setPrice(itemDTO.getPrice());
         item.setDiscountPrice(itemDTO.getDiscountPrice());
         item.setDiscountRate(itemDTO.getDiscountRate());
         item.setSales(itemDTO.getSales());
-        item.setColor(itemDTO.getColor());  // ItemColor enum을 직접 설정
+        item.setColor(itemDTO.getColor());
         item.setSize(itemDTO.getSize());
         item.setCategory(itemDTO.getCategory());
 
-        return itemMapper.toDTO(item);
+        // 썸네일 이미지 업로드
+        if (thumbnailFiles != null && !thumbnailFiles.isEmpty()) {
+            List<String> thumbnails = uploadImages(thumbnailFiles);
+            item.setThumbnail(thumbnails);
+        }
+
+        // 상세 이미지 업로드
+        if (descriptionImageFiles != null && !descriptionImageFiles.isEmpty()) {
+            List<String> descriptionImages = uploadImages(descriptionImageFiles);
+            item.setDescriptionImage(descriptionImages);
+        }
+
+        Item updatedItem = itemRepository.save(item);
+        return itemMapper.toDTO(updatedItem);
     }
 
     // 상품 삭제

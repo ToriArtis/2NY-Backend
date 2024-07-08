@@ -1,5 +1,6 @@
 package com.mega._NY.item.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.entity.UserRoles;
 import com.mega._NY.auth.service.UserService;
@@ -142,12 +143,24 @@ public class ItemController {
 
     // 상품 수정
     @PutMapping("/{itemId}")
-    public ResponseEntity<ItemDTO> updateItem(@PathVariable Long itemId, @RequestBody ItemDTO itemDTO) {
+    public ResponseEntity<ItemDTO> updateItem(
+            @PathVariable Long itemId,
+            @RequestPart(value = "itemDTO", required = false) ItemDTO itemDTO,
+            @RequestPart(value = "thumbnailFiles", required = false) List<MultipartFile> thumbnailFiles,
+            @RequestPart(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) {
         if (!isAdmin()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        ItemDTO updatedItemDTO = itemService.updateItem(itemId, itemDTO);
-        return ResponseEntity.ok(updatedItemDTO);
+
+        try {
+            if (itemDTO == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            ItemDTO updatedItemDTO = itemService.updateItem(itemId, itemDTO, thumbnailFiles, descriptionImageFiles);
+            return ResponseEntity.ok(updatedItemDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // 상품 삭제
