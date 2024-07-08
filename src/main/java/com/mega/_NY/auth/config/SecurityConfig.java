@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/users/**").permitAll()
                         .requestMatchers("/oauth/loginInfo").authenticated()  // 이 줄을 변경
                         .requestMatchers("/items/info").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/items/**").permitAll() // GET 요청에 대해 모든 /items/** 경로 허용
                         .anyRequest().authenticated()
                 )
