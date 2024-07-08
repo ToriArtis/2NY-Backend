@@ -48,4 +48,14 @@ public class CartController {
         return ResponseEntity.ok(cartItems.map(itemCartMapperImpl::toDTO));
     }
 
+    @PostMapping("clear")
+    public ResponseEntity<Void> clearCart() {
+        if (!isUser()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        User user = userService.getLoginUser();
+        cartService.clearCart(user);
+        return ResponseEntity.ok().build();
+    }
+
 }

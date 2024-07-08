@@ -36,7 +36,6 @@ public class ItemCartService {
             ItemCart newItemCart = itemCartMapper.toEntity(itemCartDTO);
             newItemCart.setCart(cart);
             newItemCart.setItem(item);
-            newItemCart.setBuyNow(true);
             return itemCartMapper.toDTO(itemCartRepository.save(newItemCart));
         } else {
             existingItemCart.addQuantity(itemCartDTO.getQuantity());
