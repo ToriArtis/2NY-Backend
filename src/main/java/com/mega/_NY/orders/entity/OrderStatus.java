@@ -20,4 +20,8 @@ public enum OrderStatus {
         this.step = step;
         this.stepDescription = stepDescription;
     }
+
+    public String getDisplayName() {
+        return this.stepDescription;
+    }
 }

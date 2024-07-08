@@ -10,6 +10,7 @@ import com.mega._NY.item.repository.ItemRepository;
 import com.mega._NY.orders.dto.ItemOrderDTO;
 import com.mega._NY.orders.dto.OrdersDTO;
 import com.mega._NY.orders.entity.ItemOrders;
+import com.mega._NY.orders.entity.OrderStatus;
 import com.mega._NY.orders.entity.Orders;
 import com.mega._NY.orders.mapper.ItemOrdersMapper;
 import com.mega._NY.orders.mapper.OrdersMapper;
@@ -117,14 +118,22 @@ public class OrdersController {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping("/{orderId}/complete")
-    public ResponseEntity<OrdersDTO> completeOrder(@PathVariable Long orderId) {
-        if (!isAdmin()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long orderId, @RequestParam String status) {
+        User loginUser = userService.getLoginUser();
+        if (!loginUser.getRoleSet().contains(UserRoles.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자 권한이 필요합니다.");
         }
-
-        Orders completedOrder = ordersService.completeOrder(orderId);
-        return ResponseEntity.ok(ordersMapper.orderToOrdersDTO(completedOrder));
+        try {
+            Orders order = ordersService.findOrder(orderId);
+            if (order.getOrderStatus() == OrderStatus.ORDER_CANCEL) {
+                return ResponseEntity.badRequest().body("취소된 주문의 상태는 변경할 수 없습니다.");
+            }
+            Orders updatedOrder = ordersService.updateOrderStatus(orderId, status);
+            return ResponseEntity.ok(ordersMapper.orderToOrdersDTO(updatedOrder));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("주문 상태 변경 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     // 주문 취소

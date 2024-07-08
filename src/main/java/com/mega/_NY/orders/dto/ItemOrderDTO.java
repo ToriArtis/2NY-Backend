@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,9 +26,13 @@ public class ItemOrderDTO {
     private int quantity;     // 주문 수량
     private int price;        // 개별 아이템 가격
     private int totalPrice;   // 수량 * 가격
+    private int discountRate;
+    private int discountPrice;
 
     private ItemSize size;
     private ItemColor color;
 
+    @Builder.Default
+    private List<String> thumbnail = new ArrayList<>();
 
 }
