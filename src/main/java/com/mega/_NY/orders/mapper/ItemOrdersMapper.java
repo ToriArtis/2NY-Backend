@@ -14,7 +14,6 @@ public interface ItemOrdersMapper {
 
     @Mapping(target = "item", source = "itemId", qualifiedByName = "itemIdToItem")
     @Mapping(target = "orders", ignore = true)
-    @Mapping(target = "discountPrice", ignore = true)
     @Mapping(target = "buyNow", ignore = true)
     ItemOrders itemOrderDtoToItemOrder(ItemOrderDTO itemOrderDto);
 
@@ -24,6 +23,9 @@ public interface ItemOrdersMapper {
     @Mapping(target = "totalPrice", expression = "java(itemOrders.getQuantity() * itemOrders.getItem().getPrice())")
     @Mapping(target = "size", source = "item.size")
     @Mapping(target = "color", source = "item.color")
+    @Mapping(target = "discountRate", source = "item.discountRate")
+    @Mapping(target = "discountPrice", source = "item.discountPrice")
+    @Mapping(source = "item.thumbnail", target = "thumbnail")
     ItemOrderDTO itemOrderToItemOrderDto(ItemOrders itemOrders);
 
     List<ItemOrders> itemOrderDtosToItemOrders(List<ItemOrderDTO> itemOrderDtos);

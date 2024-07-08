@@ -19,7 +19,7 @@ public class OrdersDTO {
     private String address;
     private String detailAddress;
     private String phone;
-    private OrderStatus orderStatus;
+    private String orderStatus;
     private Integer totalItems;
     private Integer totalPrice;
     private Integer totalDiscountPrice;

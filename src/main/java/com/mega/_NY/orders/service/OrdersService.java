@@ -141,25 +141,27 @@ public class OrdersService {
         return itemOrdersService.createItemOrder(itemOrder);
     }
 
-    public Orders completeOrder(Long orderId) {
+    public Orders updateOrderStatus(Long orderId, String status) {
         Orders order = findOrder(orderId);
-        order.setOrderStatus(OrderStatus.ORDER_COMPLETE);
-        Orders completedOrder = orderRepository.save(order);
+        OrderStatus newStatus = OrderStatus.valueOf(status);
+        order.setOrderStatus(newStatus);
 
-        // buyNow 상태 업데이트
-        completedOrder.getItemOrders().forEach(io -> {
-            // 장바구니에서 주문한 경우
-            Cart cart = cartService.findMyCart(order.getUserId());
-            cart.getItemCarts().stream()
-                    .filter(itemCart -> itemCart.getItem().getItemId().equals(io.getItem().getItemId()))
-                    .findFirst()
-                    .ifPresent(itemCart -> itemCartService.excludeItemCart(itemCart.getItemCartId(), true));
+        if (newStatus == OrderStatus.ORDER_COMPLETE) {
+            // buyNow 상태 업데이트
+            order.getItemOrders().forEach(io -> {
+                // 장바구니에서 주문한 경우
+                Cart cart = cartService.findMyCart(order.getUserId());
+                cart.getItemCarts().stream()
+                        .filter(itemCart -> itemCart.getItem().getItemId().equals(io.getItem().getItemId()))
+                        .findFirst()
+                        .ifPresent(itemCart -> itemCartService.excludeItemCart(itemCart.getItemCartId(), true));
 
-            // 직접 주문한 경우 (ItemOrders의 buyNow 상태를 업데이트)
-            itemOrdersService.updateBuyNowStatus(io.getItem().getItemId(), order.getUserId(), true);
-        });
+                // 직접 주문한 경우 (ItemOrders의 buyNow 상태를 업데이트)
+                itemOrdersService.updateBuyNowStatus(io.getItem().getItemId(), order.getUserId(), true);
+            });
+        }
 
-        return completedOrder;
+        return orderRepository.save(order);
     }
 
 }
