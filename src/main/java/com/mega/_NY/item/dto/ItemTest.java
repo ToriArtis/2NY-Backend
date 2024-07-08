@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,5 +30,6 @@ public class ItemTest {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private double avgStar;
-
+    private List<String> thumbnail = new ArrayList<>();
+    private List<String> descriptionImage = new ArrayList<>();
 }
