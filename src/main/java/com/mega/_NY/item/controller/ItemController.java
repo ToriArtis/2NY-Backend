@@ -216,5 +216,25 @@ public class ItemController {
         return ResponseEntity.ok(itemDTOPage);
     }
 
+    // 제목으로 검색
+    @GetMapping("/search/title")
+    public ResponseEntity<Page<ItemDTO>> searchByTitle(@RequestParam String title, Pageable pageable) {
+        Page<ItemDTO> itemDTOPage = itemService.searchByTitle(title, pageable);
+        return ResponseEntity.ok(itemDTOPage);
+    }
+
+    // 내용으로 검색
+    @GetMapping("/search/content")
+    public ResponseEntity<Page<ItemDTO>> searchByContent(@RequestParam String content, Pageable pageable) {
+        Page<ItemDTO> itemDTOPage = itemService.searchByContent(content, pageable);
+        return ResponseEntity.ok(itemDTOPage);
+    }
+
+    // 제목 또는 내용으로 검색
+    @GetMapping("/search")
+    public ResponseEntity<Page<ItemDTO>> searchByTitleOrContent(@RequestParam String keyword, Pageable pageable) {
+        Page<ItemDTO> itemDTOPage = itemService.searchByTitleOrContent(keyword, pageable);
+        return ResponseEntity.ok(itemDTOPage);
+    }
 
 }
