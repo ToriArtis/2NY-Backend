@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/items/info").permitAll()
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/items/**").permitAll() // GET 요청에 대해 모든 /items/** 경로 허용
+                        .requestMatchers(HttpMethod.GET, "/review/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 // HTTP 기본 인증 비활성화
