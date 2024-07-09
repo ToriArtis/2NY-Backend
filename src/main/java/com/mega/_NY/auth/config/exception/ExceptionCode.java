@@ -13,6 +13,7 @@ public enum ExceptionCode {
     ITEMCART_NOT_FOUND(404, "존재하지 않는 항목입니다."),
     REVIEW_NOT_FOUND(404, "존재하지 않는 리뷰입니다."),
     REVIEW_NOT_ALLOWED(403, "구매하지 않은 상품에 대해 리뷰를 작성할 수 없습니다."),
+    REVIEW_ALREADY_EXISTS(403, "후기 작성한 상품입니다."),
     TALK_NOT_FOUND(404, "존재하지 않는 토크입니다."),
     ACCESS_DENIED_USER(403, "권한이 없는 유저입니다."),
     EXPIRED_TID(404,"tid가 null입니다."),

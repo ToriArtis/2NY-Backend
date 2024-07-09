@@ -49,6 +49,12 @@ public class ReviewService {
             throw new BusinessLogicException(ExceptionCode.REVIEW_NOT_ALLOWED);
         }
 
+        // 사용자가 해당 상품에 대해 이미 리뷰를 작성했는지 확인
+        boolean hasReviewed = reviewRepository.existsByUserAndItem(user, item);
+        if (hasReviewed) {
+            throw new BusinessLogicException(ExceptionCode.REVIEW_ALREADY_EXISTS);
+        }
+
         Review review = reviewMapper.toEntity(reviewDTO);
         review.setItem(item);
         review.setUser(user);
