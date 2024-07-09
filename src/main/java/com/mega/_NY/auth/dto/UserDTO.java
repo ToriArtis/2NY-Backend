@@ -47,4 +47,10 @@ public class UserDTO {
         @NotBlank private String nickName; // 사용자 닉네임
         @NotBlank private Set<UserRoles> roleSet;
     }
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FindDTO{
+        private String phone;
+    }
 }

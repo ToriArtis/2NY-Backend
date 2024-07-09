@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Log4j2
@@ -142,7 +143,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/passwordFind")
+    @PostMapping("/find")
     public ResponseEntity<?> passwordFind(@RequestBody LoginDTO request) {
         Boolean isPasswordUpdate = userService.newpassword(request);
 
@@ -152,4 +153,20 @@ public class UserController {
             return ResponseEntity.badRequest().body(false);
         }
     }
+    @PostMapping("/findemail")
+    public ResponseEntity<Map<String, Object>> emailFind(@RequestBody UserDTO.FindDTO phone) {
+        String email = userService.findEmail(phone.getPhone());
+        Map<String, Object> response = new HashMap<>();
+
+        if (email != null) {
+            response.put("success", true);
+            response.put("email", email);
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("success", false);
+            response.put("message", "이메일을 찾지 못했습니다.");
+            return ResponseEntity.ok(response);
+        }
+    }
+
 }
