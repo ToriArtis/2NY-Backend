@@ -169,4 +169,15 @@ public class UserService {
             return false;
         }
     }
+    public String findEmail(String phone) {
+        Optional<User> userOptional = userRepository.findByPhone(phone);
+        log.info(userOptional.toString());
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return user.getEmail();
+        } else {
+            return null;
+        }
+    }
 }
