@@ -43,37 +43,4 @@ public class UserInfoFilter {
         existPhoneNum(user.getPhone());
     }
 
-//    public void filterMoreInfo(UserDTO.PostMoreInfo user) {
-//        existDisplayName(user.getNickName());
-//        existPhoneNum(user.getPhone());
-//    }
-//
-//    public void filterUpdateUser(UserDTO.Post userDto) {
-//        checkPhone(userDto);
-//        checkDisplayName(userDto);
-//    }
-//
-//    public void checkPhone(UserDTO.Post userDto) {
-//        Optional<User> user = userRepository.findByNickName(userDto.getNickName());
-//        if (user.isPresent()) {
-//            verifiedMyPhone(userDto, user);
-//        }
-//    }
-//
-//    public void checkDisplayName(UserDTO.Post userDto) {
-//        Optional<User> user = userRepository.findByNickName(userDto.getPhone());
-//        if (user.isPresent()) {
-//            verifiedMyDisplayName(userDto, user);
-//        }
-//    }
-//
-//    private void verifiedMyPhone(UserDTO.Post userDto, Optional<User> user) {
-//        if (Objects.equals(user.get().getEmail(), userDto.getEmail())) return;
-//        existDisplayName(userDto.getNickName());
-//    }
-//
-//    private void verifiedMyDisplayName(UserDTO.Post userDto, Optional<User> user) {
-//        if (Objects.equals(user.get().getEmail(), userDto.getEmail())) return;
-//        existPhoneNum(userDto.getPhone());
-//    }
 }
