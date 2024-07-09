@@ -12,6 +12,7 @@ public interface OrdersMapper {
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "itemOrders", target = "itemOrders")
     @Mapping(source = "user.realName", target = "name")
+    @Mapping(source = "user.email", target = "email")
     OrdersDTO orderToOrdersDTO(Orders order);
 
     @Mapping(target = "user", ignore = true)
