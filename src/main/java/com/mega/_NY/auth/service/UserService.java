@@ -2,6 +2,7 @@ package com.mega._NY.auth.service;
 
 import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
+import com.mega._NY.auth.dto.LoginDTO;
 import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.AuthUtils;
 import com.mega._NY.auth.entity.User;
@@ -156,17 +157,16 @@ public class UserService {
         return user.get().getId();
     }
 
-    public Boolean passwordVaild(String password){
-        log.info("Received password: " + password);
-        User onlineUser = getLoginUser();
-        log.info("Received password: " + onlineUser);
+    public boolean newpassword(LoginDTO request) {
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
 
-        if (passwordEncoder.matches(password, onlineUser.getPassword())) {
-            log.info("Password changed successfully");
-            return true;
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            String encodedPassword = passwordEncoder.encode(request.getPassword());
+            int updatedRows = userRepository.updatePassword(request.getEmail(), encodedPassword);
+            return updatedRows > 0;
         } else {
             return false;
         }
     }
-
 }

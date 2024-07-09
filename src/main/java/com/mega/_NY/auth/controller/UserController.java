@@ -141,4 +141,15 @@ public class UserController {
             return ResponseEntity.badRequest().body(false);
         }
     }
+
+    @PostMapping("/passwordFind")
+    public ResponseEntity<?> passwordFind(@RequestBody LoginDTO request) {
+        Boolean isPasswordUpdate = userService.newpassword(request);
+
+        if (isPasswordUpdate) {
+            return ResponseEntity.ok().body(true);
+        } else {
+            return ResponseEntity.badRequest().body(false);
+        }
+    }
 }
