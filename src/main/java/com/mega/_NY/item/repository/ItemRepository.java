@@ -15,14 +15,6 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    // 제목으로 검색
-    Page<Item> findByTitle(String title, Pageable pageable);
-
-    // 내용으로 검색
-    Page<Item> findByContent(String content, Pageable pageable);
-
-    // 제목 또는 내용으로 검색
-    Page<Item> findByTitleOrContent(String title, String content, Pageable pageable);
 
     // 카테고리별 검색
     Page<Item> findByCategory(ItemCategory category, Pageable pageable);

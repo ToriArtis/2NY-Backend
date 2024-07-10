@@ -216,25 +216,25 @@ public class ItemController {
         return ResponseEntity.ok(itemDTOPage);
     }
 
-    // 제목으로 검색
-    @GetMapping("/search/title")
-    public ResponseEntity<Page<ItemDTO>> searchByTitle(@RequestParam String title, Pageable pageable) {
-        Page<ItemDTO> itemDTOPage = itemService.searchByTitle(title, pageable);
-        return ResponseEntity.ok(itemDTOPage);
-    }
-
-    // 내용으로 검색
-    @GetMapping("/search/content")
-    public ResponseEntity<Page<ItemDTO>> searchByContent(@RequestParam String content, Pageable pageable) {
-        Page<ItemDTO> itemDTOPage = itemService.searchByContent(content, pageable);
-        return ResponseEntity.ok(itemDTOPage);
-    }
-
-    // 제목 또는 내용으로 검색
+    // 상품 검색
     @GetMapping("/search")
-    public ResponseEntity<Page<ItemDTO>> searchByTitleOrContent(@RequestParam String keyword, Pageable pageable) {
-        Page<ItemDTO> itemDTOPage = itemService.searchByTitleOrContent(keyword, pageable);
+    public ResponseEntity<Page<ItemDTO>> searchItems(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String content,
+            Pageable pageable) {
+
+        String[] types = null; // t(제목), c(내용)
+        String keyword = null;
+
+        if (title != null && !title.isEmpty()) { // 제목 검색
+            types = new String[]{"t"};
+            keyword = title;
+        } else if (content != null && !content.isEmpty()) { // 내용 검색
+            types = new String[]{"c"};
+            keyword = content;
+        }
+
+        Page<ItemDTO> itemDTOPage = itemService.searchItems(types, keyword, pageable);
         return ResponseEntity.ok(itemDTOPage);
     }
-
 }
