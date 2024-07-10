@@ -6,11 +6,11 @@ import com.mega._NY.item.dto.ItemWithReviewsDTO;
 import com.mega._NY.item.entity.*;
 import com.mega._NY.item.mapper.ItemMapper;
 import com.mega._NY.item.repository.ItemRepository;
+import com.mega._NY.item.repository.SearchRepository;
 import com.mega._NY.review.dto.ReviewDTO;
 import com.mega._NY.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +36,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
     private final ReviewService reviewService;
+    private final SearchRepository searchRepository;
 
     // 상품 추가
     @Transactional
@@ -196,24 +196,10 @@ public class ItemService {
         }
     }
 
-    // 제목으로 검색
+    // 상품 검색
     @Transactional(readOnly = true)
-    public Page<ItemDTO> searchByTitle(String title, Pageable pageable) {
-        Page<Item> itemPage = itemRepository.findByTitle(title, pageable);
-        return itemPage.map(itemMapper::toDTO);
-    }
-
-    // 내용으로 검색
-    @Transactional(readOnly = true)
-    public Page<ItemDTO> searchByContent(String content, Pageable pageable) {
-        Page<Item> itemPage = itemRepository.findByContent(content, pageable);
-        return itemPage.map(itemMapper::toDTO);
-    }
-
-    // 제목 또는 내용으로 검색
-    @Transactional(readOnly = true)
-    public Page<ItemDTO> searchByTitleOrContent(String keyword, Pageable pageable) {
-        Page<Item> itemPage = itemRepository.findByTitleOrContent(keyword, keyword, pageable);
+    public Page<ItemDTO> searchItems(String[] types, String keyword, Pageable pageable) {
+        Page<Item> itemPage = searchRepository.searchItems(types, keyword, pageable);
         return itemPage.map(itemMapper::toDTO);
     }
 
