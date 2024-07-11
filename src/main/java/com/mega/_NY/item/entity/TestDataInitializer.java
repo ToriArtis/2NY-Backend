@@ -46,8 +46,8 @@ public class TestDataInitializer {
     }
 
     private Item createTestItem(Random random, ItemCategory category, ItemColor specificColor) {
-        int price = random.nextInt(100000) + 10000; // 10000 ~ 109999 사이의 랜덤 가격
-        int discountRate = random.nextInt(20); // 0 ~ 49% 사이의 랜덤 할인율
+        int price = random.nextInt(1000) * 100; // 10000 ~ 109999 사이의 랜덤 가격
+        int discountRate = random.nextInt(40); // 0 ~ 49% 사이의 랜덤 할인율
         int discountPrice = price * (100 - discountRate) / 100;
 
         ItemCategory itemCategory = (category != null) ? category : ItemCategory.values()[random.nextInt(ItemCategory.values().length)];
@@ -56,12 +56,12 @@ public class TestDataInitializer {
         return Item.builder()
                 .title("Test Item " + (random.nextInt(1000) + 1))
                 .content("This is a test item in category " + itemCategory.name() + " with color " + itemColor.name())
-                .thumbnail(List.of("test_thumbnail.jpg"))
-                .descriptionImage(List.of("test_description.jpg"))
+                .thumbnail(List.of("1720572698618_2.png"))
+                .descriptionImage(List.of("1720426222065_.png"))
                 .price(price)
                 .discountRate(discountRate)
                 .discountPrice(discountPrice)
-                .sales(random.nextInt(1000))
+                .sales(random.nextInt(100))
                 .size(ItemSize.values()[random.nextInt(ItemSize.values().length)])
                 .color(itemColor)
                 .category(itemCategory)

@@ -1,5 +1,5 @@
 package com.mega._NY.item.entity;
 
 public enum ItemCategory {
-    ALL, TOP, OUTER, DRESS, SKIRT, PANTS
+    TOP, OUTER, DRESS, SKIRT, PANTS
 }
