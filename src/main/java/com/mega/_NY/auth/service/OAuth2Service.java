@@ -70,12 +70,16 @@ public class OAuth2Service {
             DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
             OAuth2UserRequest userRequest = new OAuth2UserRequest(clientRegistration, tokenResponse.getAccessToken());
             OAuth2User oAuth2User = userService.loadUser(userRequest);
+            // 여기에 userNameAttributeName을 정의합니다.
+            String userNameAttributeName = clientRegistration.getProviderDetails()
+                    .getUserInfoEndpoint().getUserNameAttributeName();
 
-            OAuthAttributes attributes = OAuthAttributes.of(registrationId, clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(), oAuth2User.getAttributes());
+            OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
             User user = saveOrUpdate(attributes);
 
+
             return new DefaultOAuth2User(
-                    Collections.singleton(new SimpleGrantedAuthority(UserRoles.USER.name())), // 기본 역할 설정
+                    Collections.singleton(new SimpleGrantedAuthority(UserRoles.USER.name())),
                     attributes.getAttributes(),
                     attributes.getNameAttributeKey());
         } catch (Exception e) {
