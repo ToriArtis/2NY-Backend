@@ -1,6 +1,8 @@
 package com.mega._NY.auth.config;
 
 import com.mega._NY.auth.jwt.JwtAuthenticationFilter;
+import com.mega._NY.auth.jwt.TokenProvider;
+import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.auth.service.CustomUserDetailsService;
 import com.mega._NY.auth.service.OAuth2Service;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +15,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,37 +33,43 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter; // JWT 인증 필터 의존성 주입
+    private final JwtAuthenticationFilter jwtAuthenticationFilter; // jwt 필터 의존성 주입
     private final CustomUserDetailsService userDetailsService;
     private final OAuth2Service oAuth2Service;
-
+    private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
+    private final OAuth2UserService oAuth2UserService;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(httpSecurityCorsConfigurer -> {
-                })
+        http.cors(httpSecurityCorsConfigurer -> {})
                 // CSRF 보호 비활성화
                 .csrf(csrf -> csrf.disable())
 
                 // HTTP 요청에 대한 인가 설정
                 .authorizeHttpRequests(auth -> auth
                         // 나머지 모든 요청은 인증 필요
-                        .requestMatchers("/", "/users/**").permitAll()
-                        .requestMatchers("/oauth/loginInfo").authenticated()  // 이 줄을 변경
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/", "/users/**", "/oauth/**").permitAll()
                         .requestMatchers("/items/info").permitAll()
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/items/**").permitAll() // GET 요청에 대해 모든 /items/** 경로 허용
                         .requestMatchers(HttpMethod.GET, "/review/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                // HTTP 기본 인증 비활성화
-                .httpBasic(httpBasic -> httpBasic.disable())
 //                .oauth2Login(oauth2Login -> {
 //                    oauth2Login
 //                            .defaultSuccessUrl("/oauth/loginInfo", true)  // 로그인 성공 후 리다이렉트 URL 변경
 //                            .userInfoEndpoint(userInfoEndpoint ->
 //                                    userInfoEndpoint.userService(oAuth2Service));
 //                })
-
+                // HTTP 기본 인증 비활성화
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2UserService)
+                        )
+                        .successHandler(oAuth2AuthenticationSuccessHandler())
+                )
                 // 세션 관리 설정을 무상태(stateless)로 설정
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -78,21 +88,23 @@ public class SecurityConfig {
         // 설정된 SecurityFilterChain 반환
         return http.build();
     }
+    @Bean
+    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
+        return new OAuth2AuthenticationSuccessHandler(tokenProvider, userRepository);
+    }
 
 
 
     // CORS 필터 Bean 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        // 접근할 URL을 지정하여 처리... "*" 는 모든 주소로의 접근 허용. 대상 지정하면 지정 대상만 접근 가능...
-        corsConfiguration.setAllowedOriginPatterns(Arrays.asList("http://localhost:8000", "http://localhost:3000"));
-        corsConfiguration.setAllowedMethods(Arrays.asList("HEAD","GET","POST","PUT","DELETE"));
-        corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
-        corsConfiguration.setAllowCredentials(true);
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration);  // "/**" - 하위 모든 폴더.....
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }
