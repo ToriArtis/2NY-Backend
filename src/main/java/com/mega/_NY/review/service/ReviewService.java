@@ -7,6 +7,8 @@ import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.cart.service.CartService;
 import com.mega._NY.item.entity.Item;
 import com.mega._NY.item.repository.ItemRepository;
+import com.mega._NY.orders.entity.Orders;
+import com.mega._NY.orders.repository.OrdersRepository;
 import com.mega._NY.orders.service.ItemOrdersService;
 import com.mega._NY.review.dto.ReviewDTO;
 import com.mega._NY.review.entity.Review;
@@ -30,6 +32,7 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final CartService cartService;
     private final ItemOrdersService itemOrdersService;
+    private final OrdersRepository ordersRepository;
 
     //리뷰 생성
     @Transactional
@@ -38,6 +41,8 @@ public class ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         User user = userRepository.findById(reviewDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+        Orders order = ordersRepository.findById(reviewDTO.getOrderId())
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
         // 사용자가 해당 상품을 구매했는지 확인
         boolean hasBoughtThroughCart = cartService.findMyCart(user.getId()).getItemCarts().stream()
@@ -50,7 +55,7 @@ public class ReviewService {
         }
 
         // 사용자가 해당 상품에 대해 이미 리뷰를 작성했는지 확인
-        boolean hasReviewed = reviewRepository.existsByUserAndItem(user, item);
+        boolean hasReviewed = reviewRepository.existsByUserAndItemAndOrderId(user, item, order.getOrderId());
         if (hasReviewed) {
             throw new BusinessLogicException(ExceptionCode.REVIEW_ALREADY_EXISTS);
         }
