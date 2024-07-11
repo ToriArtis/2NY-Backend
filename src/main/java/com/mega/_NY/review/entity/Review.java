@@ -29,6 +29,9 @@ public class Review {
     private User user;
 
     @Column
+    private Long orderId;
+
+    @Column
     private String content;
 
     //별점

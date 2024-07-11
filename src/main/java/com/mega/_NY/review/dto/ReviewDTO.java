@@ -18,6 +18,7 @@ public class ReviewDTO {
     private Long reviewId;
     private Long itemId;
     private Long userId;
+    private Long orderId;
     private String nickName;
     private double star;
     private String content;
