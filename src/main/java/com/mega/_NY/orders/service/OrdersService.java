@@ -85,7 +85,6 @@ public class OrdersService {
     public void cancelOrder(Long orderId) {
         Orders order = findOrder(orderId);
         order.setOrderStatus(OrderStatus.ORDER_CANCEL);
-        order.getItemOrders().forEach(io -> itemOrdersService.updateItemSales(io, false));
         orderRepository.save(order);
     }
 
@@ -157,7 +156,7 @@ public class OrdersService {
                         .ifPresent(itemCart -> itemCartService.excludeItemCart(itemCart.getItemCartId(), true));
 
                 // 직접 주문한 경우 (ItemOrders의 buyNow 상태를 업데이트)
-                itemOrdersService.updateBuyNowStatus(io.getItem().getItemId(), order.getUserId(), true);
+                itemOrdersService.updateBuyNowStatus(io.getItemOrderId(), true);
             });
         }
 
