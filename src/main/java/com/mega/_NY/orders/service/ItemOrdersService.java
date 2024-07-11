@@ -86,6 +86,7 @@ public class ItemOrdersService {
         itemOrders.forEach(itemOrder -> {
             itemOrder.setBuyNow(buyNow);
             itemOrderRepository.save(itemOrder);
+            updateItemSales(itemOrder, buyNow);
         });
     }
 

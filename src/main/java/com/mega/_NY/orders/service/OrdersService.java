@@ -122,7 +122,7 @@ public class OrdersService {
         for (ItemOrders io : itemOrders) {
             io.setOrders(order);
             itemOrdersService.createItemOrder(io);
-            itemOrdersService.updateItemSales(io, true);
+//            itemOrdersService.updateItemSales(io, true);
         }
 
         order.setItemOrders(itemOrders);

@@ -18,7 +18,9 @@ public enum ExceptionCode {
     ACCESS_DENIED_USER(403, "권한이 없는 유저입니다."),
     EXPIRED_TID(404,"tid가 null입니다."),
     PERIOD_NOT_CHANGE(400, "주기를 변경할 수 없습니다."),
-    NICKNAME_TOO_LONG(400, "닉네임은 5글자 이하여야 합니다.")
+    NICKNAME_TOO_LONG(400, "닉네임은 5글자 이하여야 합니다."),
+    PAY_CANCEL(404, "결제 취소."),
+    PAY_FAILED(500, "결제 실패.");
     ;
 
 
