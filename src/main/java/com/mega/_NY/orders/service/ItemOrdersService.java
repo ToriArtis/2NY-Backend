@@ -72,22 +72,34 @@ public class ItemOrdersService {
         return totalDiscountPrice;
     }
 
-    // 아이템 판매량 업데이트
-    public void updateItemSales(ItemOrders itemOrder, boolean increase) {
-        Item item = itemOrder.getItem();
-        int salesChange = increase ? itemOrder.getQuantity() : -itemOrder.getQuantity();
-        item.setSales(item.getSales() + salesChange);
-        itemRepository.save(item);
+    public void updateBuyNowStatus(Long itemOrderId, boolean buyNow) {
+        ItemOrders itemOrder = itemOrderRepository.findById(itemOrderId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid itemOrder ID"));
+
+        // 이미 처리된 주문인지 확인
+        if (itemOrder.isBuyNow() == buyNow) {
+            return; // 이미 같은 상태라면 아무 작업도 하지 않음
+        }
+
+        itemOrder.setBuyNow(buyNow);
+        itemOrderRepository.save(itemOrder);
+
+        if (buyNow) {
+            updateItemSales(itemOrder, true);
+        } else {
+            // buyNow가 false로 변경되는 경우 (주문 취소 등) sales를 감소시킬 수 있음
+            updateItemSales(itemOrder, false);
+        }
     }
 
-    // 주문 완료 시 buyNow 상태 업데이트
-    public void updateBuyNowStatus(Long itemId, Long userId, boolean buyNow) {
-        List<ItemOrders> itemOrders = itemOrderRepository.findByItemItemIdAndOrdersUserId(itemId, userId);
-        itemOrders.forEach(itemOrder -> {
-            itemOrder.setBuyNow(buyNow);
-            itemOrderRepository.save(itemOrder);
-            updateItemSales(itemOrder, buyNow);
-        });
+    private void updateItemSales(ItemOrders itemOrder, boolean increase) {
+        Item item = itemOrder.getItem();
+        if (increase) {
+            item.setSales(item.getSales() + itemOrder.getQuantity());
+        } else {
+            item.setSales(Math.max(0, item.getSales() - itemOrder.getQuantity()));
+        }
+        itemRepository.save(item);
     }
 
     // 사용자가 아이템을 구매했는지 확인
