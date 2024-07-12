@@ -33,4 +33,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     // 색상&사이즈 필터
     Page<Item> findByColorAndSize(ItemColor color, ItemSize size, Pageable pageable);
+
+    //카테고리&색상&사이즈 필터
+    Page<Item> findByCategoryAndColorAndSize(ItemCategory category, ItemColor color, ItemSize size, Pageable pageable);
 }
