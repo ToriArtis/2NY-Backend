@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
@@ -36,6 +37,7 @@ public class OAuth2Service {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public OAuth2User processCode(String code, String registrationId) {
         log.info("Processing code for provider: {}", registrationId);
@@ -91,10 +93,10 @@ public class OAuth2Service {
     public User saveOrUpdate(OAuthAttributes attributes) {
         User user = userRepository.findByEmail(attributes.getEmail())
                 .map(entity -> entity.updateUser(attributes.getName(), attributes.getEmail(), attributes.getProvider()))
-                .orElseGet(() -> attributes.toEntity());
+                .orElseGet(() -> attributes.toEntity(passwordEncoder));
 
         if (user.getRoleSet().isEmpty()) {
-            user.addRole(UserRoles.USER); // 기본 역할 추가
+            user.addRole(UserRoles.USER);
         }
 
         return userRepository.save(user);

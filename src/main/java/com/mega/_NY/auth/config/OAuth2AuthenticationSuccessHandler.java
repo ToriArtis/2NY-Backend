@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -43,7 +45,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                             .nickName(name)  // 임시로 realName을 nickName으로 사용
                             .provider("oauth2")
                             .userStatus(UserStatus.USER_ACTIVE)
+                            .password(passwordEncoder.encode("1111"))  // 초기 비밀번호를 "1111"로 설정하고 인코딩
                             .build();
+                    newUser.addRole(UserRoles.USER); // 기본 역할 추가
                     return userRepository.save(newUser);
                 });
 
