@@ -197,13 +197,16 @@ public class ItemController {
     // 색상&사이즈 필터
     @GetMapping("/filter")
     public ResponseEntity<Page<ItemDTO>> getItemsByFilter(
+            @RequestParam(required = false) ItemCategory category,
             @RequestParam(required = false) ItemColor color,
             @RequestParam(required = false) ItemSize size,
             Pageable pageable) {
 
         Page<ItemDTO> itemDTOPage;
 
-        if (color != null && size != null) {
+        if (category != null && color != null && size != null) {
+            itemDTOPage = itemService.getItemsByCategoryAndColorAndSize(category, color, size, pageable);
+        } else if (color != null && size != null) {
             itemDTOPage = itemService.getItemsByColorAndSize(color, size, pageable);
         } else if (color != null) {
             itemDTOPage = itemService.getItemsByColor(color, pageable);

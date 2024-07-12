@@ -251,4 +251,11 @@ public class ItemService {
         Page<Item> itemPage = itemRepository.findByColorAndSize(color, size, pageable);
         return itemPage.map(itemMapper::toDTO);
     }
+
+    @Transactional(readOnly = true)
+    public Page<ItemDTO> getItemsByCategoryAndColorAndSize(ItemCategory category, ItemColor color, ItemSize size, Pageable pageable) {
+        Page<Item> itemPage = itemRepository.findByCategoryAndColorAndSize(category, color, size, pageable);
+        return itemPage.map(itemMapper::toDTO);
+    }
+
 }
