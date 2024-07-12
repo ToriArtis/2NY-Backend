@@ -3,6 +3,7 @@ package com.mega._NY.auth.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,13 +83,13 @@ public class OAuthAttributes {
                 .build();
     }
 
-    public User toEntity() {
+    public User toEntity(PasswordEncoder passwordEncoder) {
         return User.builder()
                 .realName(name)
                 .email(email)
                 .nickName(name)
                 .provider(provider)
-                .password("1111")
+                .password(passwordEncoder.encode("1111"))  // 초기 비밀번호를 "1111"로 설정하고 인코딩
                 .build();
     }
 }
