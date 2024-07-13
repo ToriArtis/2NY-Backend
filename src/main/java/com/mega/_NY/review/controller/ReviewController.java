@@ -8,6 +8,7 @@ import com.mega._NY.review.service.ReviewService;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,7 @@ public class ReviewController {
 
         Long userId = userService.getLoginUser().getId();
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<ReviewDTO> reviews = reviewService.getReviewsByUserId(userId, pageable);
         return ResponseEntity.ok(reviews);
     }
@@ -67,7 +68,7 @@ public class ReviewController {
             @RequestParam(value="size", defaultValue="10") int size
     ) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<ReviewDTO> reviews = reviewService.getReviewsByItemId(itemId, pageable);
         return ResponseEntity.ok(reviews);
     }
