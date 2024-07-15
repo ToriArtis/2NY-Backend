@@ -1,6 +1,9 @@
 package com.mega._NY.auth.jwt;
 
+import com.mega._NY.auth.config.exception.BusinessLogicException;
+import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.entity.User;
+import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.auth.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,12 +23,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.core.context.SecurityContext;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Log4j2
 @Component
 public class JwtAuthenticationFilter  extends OncePerRequestFilter {
     @Autowired
     private TokenProvider tokenProvider;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -35,17 +41,20 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
             String accessToken = parseBearerToken(request);
             String refreshToken = request.getHeader("Refresh-Token");
 
+
             log.info("Filter is running...");
             // 토큰 검사하기. JWT이므로 인가 서버에 요청 하지 않고도 검증 가능.
             if (accessToken != null && !accessToken.equalsIgnoreCase("null") && StringUtils.hasText(accessToken)) {
                 if(tokenProvider.isTokenExpired(accessToken)&&StringUtils.hasText(refreshToken)){
                     // Access token is expired, but we have a refresh token
-                    String userId = tokenProvider.validateAndGetUserIdFromRefreshToken(refreshToken);
-                    log.info(userId);
+                    String email = tokenProvider.validateAndGetUserIdFromRefreshToken(refreshToken);
 
-                    User user = new User();
+                    log.info(email);
 
-                    String newAccessToken = tokenProvider.createAccessToken(user); // 이 부분 다시 하기!!!!!
+                    Optional<User> userOptional = userRepository.findByEmail(email);
+                    User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+
+                    String newAccessToken = tokenProvider.createAccessToken(user);
                     response.setHeader("New-Access-Token", newAccessToken);
                     accessToken = newAccessToken;
                 }
@@ -81,6 +90,5 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
         }
         return null;
     }
-
 
 }
