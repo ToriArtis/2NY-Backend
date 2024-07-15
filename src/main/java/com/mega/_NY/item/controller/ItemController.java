@@ -146,7 +146,7 @@ public class ItemController {
     @PutMapping("/{itemId}")
     public ResponseEntity<ItemDTO> updateItem(
             @PathVariable Long itemId,
-            @RequestPart(value = "itemDTO", required = false) ItemDTO itemDTO,
+            @RequestPart(value = "itemDTO") ItemDTO itemDTO,
             @RequestPart(value = "thumbnailFiles", required = false) List<MultipartFile> thumbnailFiles,
             @RequestPart(value = "descriptionImageFiles", required = false) List<MultipartFile> descriptionImageFiles) {
         if (!isAdmin()) {
