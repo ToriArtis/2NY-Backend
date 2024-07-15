@@ -41,12 +41,15 @@ public class UserDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static  class LoginDTO{
-        private String token;
+        private String accessToken;
+        private String refreshToken;
 
         @NotBlank private String email; // 사용자 이메일
         @NotBlank private String nickName; // 사용자 닉네임
         @NotBlank private Set<UserRoles> roleSet;
+        private String provider;
     }
+
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor

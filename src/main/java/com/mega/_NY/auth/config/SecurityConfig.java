@@ -61,12 +61,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/review/**").permitAll()
                         .anyRequest().authenticated()
                 )
-//                .oauth2Login(oauth2Login -> {
-//                    oauth2Login
-//                            .defaultSuccessUrl("/oauth/loginInfo", true)  // 로그인 성공 후 리다이렉트 URL 변경
-//                            .userInfoEndpoint(userInfoEndpoint ->
-//                                    userInfoEndpoint.userService(oAuth2Service));
-//                })
                 // HTTP 기본 인증 비활성화
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .oauth2Login(oauth2 -> oauth2
@@ -93,12 +87,11 @@ public class SecurityConfig {
         // 설정된 SecurityFilterChain 반환
         return http.build();
     }
+
     @Bean
     public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
         return new OAuth2AuthenticationSuccessHandler(tokenProvider, userRepository, passwordEncoder);
     }
-
-
 
     // CORS 필터 Bean 설정
     @Bean

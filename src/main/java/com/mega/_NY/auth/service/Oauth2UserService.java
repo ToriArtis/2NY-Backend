@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class Oauth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
-//    private Oauth2UserInfo oauth2UserInfo;
 
     private PasswordEncoder encodePw(){
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();

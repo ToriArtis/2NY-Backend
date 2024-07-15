@@ -63,10 +63,12 @@ public class UserController {
                 userDTO.getPassword()
         );
         if( user != null){
-            final String token = tokenProvider.create(user);
+            final String accessToken = tokenProvider.createAccessToken(user);
+            final String refreshToken = tokenProvider.createRefreshToken(user);
             final UserDTO.LoginDTO responseUserDTO = UserDTO.LoginDTO.builder()
                     .email(user.getEmail())
-                    .token(token)
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
                     .nickName(user.getNickName())
                     .roleSet(user.getRoleSet() )
                     .build();

@@ -38,7 +38,7 @@ public class OauthUserController {
             OAuth2User oAuth2User = oAuth2Service.processCode(tokenRequest.getCode(), tokenRequest.getProvider());
             OAuthAttributes attributes = OAuthAttributes.of(tokenRequest.getProvider(), "sub", oAuth2User.getAttributes());
             User user = oAuth2Service.saveOrUpdate(attributes);
-            String token = tokenProvider.create(user);
+            String token = tokenProvider.createAccessToken(user);   // token 생성
             log.info("Token created successfully for user: {}", user.getEmail());
             return ResponseEntity.ok(new TokenResponse(token));
         } catch (Exception e) {
