@@ -1,5 +1,10 @@
 package com.mega._NY.auth.jwt;
 
+import com.mega._NY.auth.config.exception.BusinessLogicException;
+import com.mega._NY.auth.config.exception.ExceptionCode;
+import com.mega._NY.auth.entity.User;
+import com.mega._NY.auth.repository.UserRepository;
+import com.mega._NY.auth.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,23 +23,44 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.core.context.SecurityContext;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Log4j2
 @Component
 public class JwtAuthenticationFilter  extends OncePerRequestFilter {
     @Autowired
     private TokenProvider tokenProvider;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+
             // 리퀘스트에서 토큰 가져오기.
-            String token = parseBearerToken(request);
+            String accessToken = parseBearerToken(request);
+            String refreshToken = request.getHeader("Refresh-Token");
+
+
             log.info("Filter is running...");
             // 토큰 검사하기. JWT이므로 인가 서버에 요청 하지 않고도 검증 가능.
-            if (token != null && !token.equalsIgnoreCase("null")) {
+            if (accessToken != null && !accessToken.equalsIgnoreCase("null") && StringUtils.hasText(accessToken)) {
+                if(tokenProvider.isTokenExpired(accessToken)&&StringUtils.hasText(refreshToken)){
+                    // Access token is expired, but we have a refresh token
+                    String email = tokenProvider.validateAndGetUserIdFromRefreshToken(refreshToken);
+
+                    log.info(email);
+
+                    Optional<User> userOptional = userRepository.findByEmail(email);
+                    User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+
+                    String newAccessToken = tokenProvider.createAccessToken(user);
+                    response.setHeader("New-Access-Token", newAccessToken);
+                    accessToken = newAccessToken;
+                }
+
                 // userId 가져오기. 위조 된 경우 예외 처리 된다.
-                String userId = tokenProvider.validateAndGetUserId(token);
+                String userId = tokenProvider.validateAndGetUserId(accessToken);
                 log.info("Authenticated user ID : " + userId );
                 // 인증 완료; SecurityContextHolder에 등록해야 인증된 사용자라고 생각한다.
                 AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -64,6 +90,5 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
         }
         return null;
     }
-
 
 }

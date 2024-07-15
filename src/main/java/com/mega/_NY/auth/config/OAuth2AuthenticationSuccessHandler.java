@@ -51,7 +51,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     return userRepository.save(newUser);
                 });
 
-        String token = tokenProvider.create(user);
+        String token = tokenProvider.createAccessToken(user);
 
         getRedirectStrategy().sendRedirect(request, response, "/oauth2/redirect?token=" + token);
     }

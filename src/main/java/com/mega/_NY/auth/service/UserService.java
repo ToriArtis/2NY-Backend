@@ -85,7 +85,6 @@ public class UserService {
         return null;
     }
 
-
     public UserDTO.ResponseDTO info(String email) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
@@ -94,6 +93,13 @@ public class UserService {
         log.info("info AuthDTO : " + userDTO);
         userDTO.setEmail(user.getEmail());
         return userDTO;
+    }
+
+    public User returnUser(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+
+        return user;
     }
 
     public void modify(UserDTO.ResponseDTO userDTO) {
@@ -137,7 +143,6 @@ public class UserService {
     }
 
     private User createRole( User user ){
-        List<String> roles = authUtils.createRoles();
         user.addRole(UserRoles.USER);
         return user;
     }

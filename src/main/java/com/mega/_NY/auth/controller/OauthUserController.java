@@ -1,11 +1,13 @@
 package com.mega._NY.auth.controller;
 
+import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.OAuthAttributes;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.OAuth2Service;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.TokenResponse;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,9 +40,19 @@ public class OauthUserController {
             OAuth2User oAuth2User = oAuth2Service.processCode(tokenRequest.getCode(), tokenRequest.getProvider());
             OAuthAttributes attributes = OAuthAttributes.of(tokenRequest.getProvider(), "sub", oAuth2User.getAttributes());
             User user = oAuth2Service.saveOrUpdate(attributes);
-            String token = tokenProvider.create(user);
+            String accessToken = tokenProvider.createAccessToken(user);   // token 생성
+            String refreshToken = tokenProvider.createRefreshToken(user);
             log.info("Token created successfully for user: {}", user.getEmail());
-            return ResponseEntity.ok(new TokenResponse(token));
+            return ResponseEntity.ok(
+                    UserDTO.LoginDTO.builder()
+                            .email(user.getEmail())
+                            .accessToken(accessToken)
+                            .refreshToken(refreshToken)
+                            .nickName(user.getNickName())
+                            .roleSet(user.getRoleSet() )
+                            .provider(user.getProvider())
+                            .build()
+            );
         } catch (Exception e) {
             log.error("Token exchange failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -76,19 +88,14 @@ public class OauthUserController {
         }
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     private static class TokenResponse {
-        private String token;
-        // constructor, getters and setters
-
-        public String getToken() {
-            return token;
-        }
-        public void setToken(String token) {
-            this.token = token;
-        }
-        public TokenResponse(String token) {
-            this.token = token;
-        }
+        private String accessToken;
+        private String refreshToken;
     }
 }
 
