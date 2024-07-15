@@ -153,7 +153,6 @@ public class ItemService {
         item.setPrice(itemDTO.getPrice());
         item.setDiscountPrice(itemDTO.getDiscountPrice());
         item.setDiscountRate(itemDTO.getDiscountRate());
-        item.setSales(itemDTO.getSales());
         item.setColor(itemDTO.getColor());
         item.setSize(itemDTO.getSize());
         item.setCategory(itemDTO.getCategory());
