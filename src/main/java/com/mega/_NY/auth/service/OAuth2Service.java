@@ -4,6 +4,7 @@ import com.mega._NY.auth.entity.OAuthAttributes;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.entity.UserRoles;
 import com.mega._NY.auth.repository.UserRepository;
+import com.mega._NY.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class OAuth2Service {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CartService cartService;
 
     public OAuth2User processCode(String code, String registrationId) {
         log.info("Processing code for provider: {}", registrationId);
@@ -93,12 +95,21 @@ public class OAuth2Service {
     public User saveOrUpdate(OAuthAttributes attributes) {
         User user = userRepository.findByEmail(attributes.getEmail())
                 .map(entity -> entity.updateUser(attributes.getName(), attributes.getEmail(), attributes.getProvider()))
-                .orElseGet(() -> attributes.toEntity(passwordEncoder));
+                .orElseGet(() -> {
+                    User newUser = attributes.toEntity(passwordEncoder);
+                    if (newUser.getRoleSet().isEmpty()) {
+                        newUser.addRole(UserRoles.USER);
+                    }
+                    User savedUser = userRepository.save(newUser);
+                    cartService.createCart(savedUser); // 새 사용자에 대한 카트 생성
+                    return savedUser;
+                });
 
-        if (user.getRoleSet().isEmpty()) {
-            user.addRole(UserRoles.USER);
+        if (user.getId() == null) { // 새로 생성된 사용자인 경우
+            user = userRepository.save(user);
+            cartService.createCart(user); // 카트 생성
         }
 
-        return userRepository.save(user);
+        return user;
     }
 }
