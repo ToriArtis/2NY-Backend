@@ -58,7 +58,7 @@ API를 이용한 웹 애플리케이션
 
 ### 활용 장비 및 재료
 
-<img src="./public/assets/2NY_Tools.png" width="700">
+<img src="./2NY_Tools.png" width="700">
 
 - Visual Studio Code
 - React
@@ -77,8 +77,8 @@ API를 이용한 웹 애플리케이션
 
 #### ERD 및 아키텍처
 
-<img src="./public/assets/2NY_erd.png" width="700">
-<img src="./public/assets/2NY_Architecture.png" width="700">
+<img src="./2NY_erd.png" width="700">
+<img src="./2NY_Architecture.png" width="700">
 
 ### 기대 효과
 
