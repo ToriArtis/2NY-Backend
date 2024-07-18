@@ -17,7 +17,7 @@ You - 고객 개개인을 중요하게 여긴다는 메세지를 전달
 
 | 김신이(PL) | 이소현 | 조민준 | 채현영 |
 | --- | --- | --- | --- |
-| ![image](https://github.com/ToriArtis/2NY-Backend/blob/9f1d73c47b655026cbc5f95ec2f8d7bdf29c3c49/src/main/resources/static/images/SINI.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/9f1d73c47b655026cbc5f95ec2f8d7bdf29c3c49/src/main/resources/static/images/SOHYUN.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/9f1d73c47b655026cbc5f95ec2f8d7bdf29c3c49/src/main/resources/static/images/MINJUNE.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/9f1d73c47b655026cbc5f95ec2f8d7bdf29c3c49/src/main/resources/static/images/HYEONYEONG.png) |
+| ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/SINI.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/SOHYUN.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/MINJUNE.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/HYEONYEONG.png) |
 | [@SiNiKin](https://github.com/SiNiKin) | [@LeeSoHyunn](https://github.com/LeeSoHyunn) | [@Rencal3491](https://github.com/Rencal3491) | [@CheHyeonYeong](https://github.com/CheHyeonYeong)  |
 
 ### 프로젝트 개요
