@@ -56,7 +56,7 @@ public class TestDataInitializer {
         return Item.builder()
                 .title("Test Item " + (random.nextInt(1000) + 1))
                 .content("This is a test item in category " + itemCategory.name() + " with color " + itemColor.name())
-                .thumbnail(List.of("default_Thumbnail.png"))
+                .thumbnail(List.of("default_descriptionImage.png"))
                 .descriptionImage(List.of("default_descriptionImage.png"))
                 .price(price)
                 .discountRate(discountRate)
