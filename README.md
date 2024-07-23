@@ -50,19 +50,6 @@ API를 이용한 웹 애플리케이션
 
 <img src="./2NY_Tools.png" width="700">
 
-- Visual Studio Code
-- React
-- Java 17 SDK
-- Spring Boot
-- IntelliJ
-- PostMan
-- MySQL
-- Notion
-- Jira
-- GitHub
-- gitmoji
-- KakaoTalk
-
 ### 프로젝트 구조
 
 #### ERD 및 아키텍처
