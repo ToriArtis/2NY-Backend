@@ -1,6 +1,6 @@
 # 2NY
 
-## 프로젝트 개요
+## 🚀 프로젝트 소개
 
 ### 주제 및 선정 배경
 
@@ -13,20 +13,7 @@ TO - 목적지로 향하는 여정을 의미하며, 패션을 통한 자기발�
 New - 새로움의 의미, 고객이 새로운 스타일과 자신을 발견할 수 있는 공간
 You - 고객 개개인을 중요하게 여긴다는 메세지를 전달
 
-### 🔎 Team Member
-
-| 김신이(PL) | 이소현 | 조민준 | 채현영 |
-| --- | --- | --- | --- |
-| ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/SINI.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/SOHYUN.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/MINJUNE.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/HYEONYEONG.png) |
-| [@SiNiKin](https://github.com/SiNiKin) | [@LeeSoHyunn](https://github.com/LeeSoHyunn) | [@Rencal3491](https://github.com/Rencal3491) | [@CheHyeonYeong](https://github.com/CheHyeonYeong)  |
-
-### 프로젝트 개요
-
-API를 이용한 웹 애플리케이션
-
-**앱 이름**: 2NY
-
-#### 기능 소개
+## 🌟 주요 기능
 
 1. **회원관리**
     - 회원가입, 로그인, 회원 정보 수정, 회원 정보 조회, 회원 탈퇴
@@ -45,6 +32,19 @@ API를 이용한 웹 애플리케이션
     - Admin 계정의 주문 상태 수정
     - 장바구니 or 상품 개별 주문 시 무통장입금/카카오페이 결제 기능
 
+
+### 🔎 Team Member
+
+| 김신이(PL) | 이소현 | 조민준 | 채현영 |
+| --- | --- | --- | --- |
+| ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/SINI.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/SOHYUN.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/MINJUNE.png) | ![image](https://github.com/ToriArtis/2NY-Backend/blob/fc7b7c165eb1f67eb27e697b867ffe736259b969/src/main/resources/static/images/HYEONYEONG.png) |
+| [@SiNiKin](https://github.com/SiNiKin) | [@LeeSoHyunn](https://github.com/LeeSoHyunn) | [@Rencal3491](https://github.com/Rencal3491) | [@CheHyeonYeong](https://github.com/CheHyeonYeong)  |
+
+### 프로젝트 개요
+
+API를 이용한 웹 애플리케이션
+
+**앱 이름**: 2NY
 
 ### 활용 장비 및 재료
 
