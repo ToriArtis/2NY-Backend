@@ -26,16 +26,6 @@ API를 이용한 웹 애플리케이션
 
 **앱 이름**: 2NY
 
-### 환경설정
-**Visual Studio Code 모듈 설치**
-- npm install
-- npm install @mui/material @mui/styled-engine-sc styled-components
-- npm install react-slick slick-carousel
-- npm install react-kakao-login
-- npm install react-naver-login
-- npm install @react-oauth/google
-- npm install react-quill
-
 #### 기능 소개
 
 1. **회원관리**
