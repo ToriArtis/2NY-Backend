@@ -1,4 +1,4 @@
-plugins {
+\plugins {
     id 'java'
     id 'org.springframework.boot' version '3.0.0'
     id 'io.spring.dependency-management' version '1.1.0'
@@ -43,10 +43,10 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-def querydslDir = "$buildDir/generated/querydsl"
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 
 sourceSets {
-    main.java.srcDir querydslDir
+    main.java.srcDirs += querydslDir
 }
 
 tasks.withType(JavaCompile) {
@@ -61,7 +61,8 @@ task generateQueryDSL(type: JavaCompile, group: 'build') {
             "-proc:only",
             "-processor", "com.querydsl.apt.jpa.JPAAnnotationProcessor"
     ]
-    destinationDir = querydslDir
+    // Gradle 8.x에서는 destinationDir 대신 destinationDirectory 사용
+    destinationDirectory.set(querydslDir)
 }
 
 compileJava {
