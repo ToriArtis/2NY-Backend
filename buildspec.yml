@@ -4,17 +4,23 @@ phases:
   install:
     runtime-versions:
       java: corretto17
+  pre_build:
+    commands:
+      - echo "Current directory structure:"
+      - find . -print
+      - echo "Gradle version:"
+      - ./gradlew --version
   build:
     commands:
-      - chmod +x ./gradlew
-      - ./gradlew build
+      - echo "Starting build"
+      - ./gradlew clean build --info --stacktrace
   post_build:
     commands:
-      - mv build/libs/*.jar app.jar
+      - echo "Build completed"
+      - echo "Build directory contents:"
+      - find build -print
 
 artifacts:
   files:
-    - app.jar
-    - Procfile
-    - .ebextensions/**/*
-  name: 2ny-app-$(date +%Y-%m-%d)
+    - build/libs/*.jar
+  discard-paths: yes
