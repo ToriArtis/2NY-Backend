@@ -6,14 +6,13 @@ phases:
       java: corretto17
   pre_build:
     commands:
-      - echo "Current directory structure:"
-      - find . -print
-      - echo "Gradle version:"
-      - ./gradlew --version
+      - echo "Updating Gradle Wrapper"
+      - ./gradlew wrapper --gradle-version 8.7
+      - echo "Downloading dependencies"
+      - ./gradlew dependencies
   build:
     commands:
       - echo "Starting build"
-      - chmod +x ./gradlew
       - ./gradlew clean build -x test --info --stacktrace
   post_build:
     commands:
