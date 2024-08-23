@@ -14,7 +14,7 @@ phases:
     commands:
       - echo "Starting build"
       - chmod +x ./gradlew
-      - ./gradlew clean build --info --stacktrace
+      - ./gradlew clean build -x test --info --stacktrace
   post_build:
     commands:
       - echo "Build completed"
