@@ -1,14 +1,12 @@
 HELP.md
 .gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
+
 !**/src/test/**/build/
 
 ### STS ###
 .apt_generated
-.classpath
 .factorypath
+.classpath
 .project
 .settings
 .springBeans
@@ -36,6 +34,4 @@ out/
 ### VS Code ###
 .vscode/
 
-# API_KEY
-!**/src/main/resources/application.properties
-/src/main/resources/application.properties
+
