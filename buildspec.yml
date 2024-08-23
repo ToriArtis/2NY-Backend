@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  build:
+    commands:
+      - chmod +x ./gradlew
+      - ./gradlew build
+  post_build:
+    commands:
+      - mv build/libs/*.jar app.jar
+
+artifacts:
+  files:
+    - app.jar
+    - Procfile
+    - .ebextensions/**/*
+  name: 2ny-app-$(date +%Y-%m-%d)
