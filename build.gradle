@@ -15,7 +15,6 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-    querydsl.extendsFrom compileClasspath
 }
 
 repositories {
@@ -27,26 +26,28 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    implementation 'org.mapstruct:mapstruct:1.5.3.Final'
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    implementation 'org.modelmapper:modelmapper:3.1.1'
+    
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     
     annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
-    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
-    main.java.srcDirs += querydslDir
+    main.java.srcDir querydslDir
 }
 
 tasks.withType(JavaCompile) {
@@ -61,8 +62,7 @@ task generateQueryDSL(type: JavaCompile, group: 'build') {
             "-proc:only",
             "-processor", "com.querydsl.apt.jpa.JPAAnnotationProcessor"
     ]
-    // Gradle 8.x에서는 destinationDir 대신 destinationDirectory 사용
-    destinationDirectory.set(querydslDir)
+    destinationDirectory.set(file(querydslDir))
 }
 
 compileJava {
