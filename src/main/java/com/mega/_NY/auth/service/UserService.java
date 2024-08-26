@@ -40,7 +40,6 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final CartRepository cartRepository;
 
-
     public User join(UserDTO.ResponseDTO userDTO) throws BusinessLogicException {
         String email = userDTO.getEmail();
         String nickName = userDTO.getNickName();
