@@ -1,8 +1,10 @@
 package com.mega._NY.auth.config;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -18,5 +20,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(MAX_AGE_SECS);
+    }
+
+    // application.properties에서 설정한 경로를 주입받음
+    @Value("${app.image.upload-dir}")
+    private String uploadDir;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // '/images/**' URL 패턴에 대해 실제 파일 시스템의 경로를 매핑
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("file:" + uploadDir + "/");
     }
 }
