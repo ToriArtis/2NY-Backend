@@ -17,19 +17,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Log4j2
 public class ItemService {
 
@@ -37,6 +40,19 @@ public class ItemService {
     private final ItemMapper itemMapper;
     private final ReviewService reviewService;
     private final SearchRepository searchRepository;
+    private final Path fileStorageLocation;
+
+    public ItemService(ItemRepository itemRepository,
+                       ItemMapper itemMapper,
+                       ReviewService reviewService,
+                       SearchRepository searchRepository,
+                       Path fileStorageLocation) {
+        this.itemRepository = itemRepository;
+        this.itemMapper = itemMapper;
+        this.reviewService = reviewService;
+        this.searchRepository = searchRepository;
+        this.fileStorageLocation = fileStorageLocation;
+    }
 
     // 상품 추가
     @Transactional
@@ -73,38 +89,31 @@ public class ItemService {
 
     private List<String> uploadImages(List<MultipartFile> files) throws Exception {
         List<String> uploadedFiles = new ArrayList<>();
-        if (files != null) {
-            for (MultipartFile file : files) {
-                String originalName = file.getOriginalFilename();
-                if (originalName != null && !originalName.isEmpty()) {
-                    // 파일 이름 생성
-                    String fileName = System.currentTimeMillis() + "_" + originalName;
-                    // 파일 저장 경로
-                    String savePath = System.getProperty("user.dir") + "/src/main/resources/static/images/";
-                    // 저장 경로 없으면 디렉토리 생성
-                    if (!new File(savePath).exists()) {
-                        new File(savePath).mkdir();
-                    }
-                    String filePath = savePath + fileName;
-                    file.transferTo(new File(filePath));
-                    uploadedFiles.add(fileName);
-                }
-            }
+        for (MultipartFile file : files) {
+            // 파일 이름에서 경로 구분자 등을 제거
+            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            // 저장할 파일의 전체 경로 생성
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            // 파일을 지정된 위치에 복사 (이미 존재하면 덮어쓰기)
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            uploadedFiles.add(fileName);
         }
         return uploadedFiles;
     }
 
     public Resource loadImages(String filename) throws IOException {
         try {
-            Path filePath = Paths.get(System.getProperty("user.dir") + "/src/main/resources/static/images/" + filename);
+            // 요청된 파일의 전체 경로 생성
+            Path filePath = this.fileStorageLocation.resolve(filename).normalize();
+            // 파일을 리소스로 변환
             Resource resource = new UrlResource(filePath.toUri());
-            if (resource.exists() || resource.isReadable()) {
+            if (resource.exists()) {
                 return resource;
             } else {
-                throw new IOException("이미지를 찾을 수 없습니다.: " + filename);
+                throw new FileNotFoundException("File not found " + filename);
             }
-        } catch (MalformedURLException e) {
-            throw new IOException("이미지를 찾을 수 없습니다.: " + filename, e);
+        } catch (MalformedURLException ex) {
+            throw new FileNotFoundException("File not found " + filename);
         }
     }
 
