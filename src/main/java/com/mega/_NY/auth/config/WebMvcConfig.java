@@ -17,7 +17,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:3000", 
                                 "http://2ny-frontendv3-env.eba-mhpsr73c.ap-northeast-2.elasticbeanstalk.com",
-                                "https://2ny-frontendv3-env.eba-mhpsr73c.ap-northeast-2.elasticbeanstalk.com"
+                                "https://2ny-frontendv3-env.eba-mhpsr73c.ap-northeast-2.elasticbeanstalk.com",
                                 "http://www.2ny.kro.kr",
                                 "https://www.2ny.kro.kr")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
