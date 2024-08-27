@@ -4,28 +4,21 @@ import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.dto.LoginDTO;
 import com.mega._NY.auth.dto.UserDTO;
-import com.mega._NY.auth.entity.AuthUtils;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.entity.UserRoles;
 import com.mega._NY.auth.entity.UserStatus;
 import com.mega._NY.auth.repository.UserRepository;
 import com.mega._NY.cart.entity.Cart;
 import com.mega._NY.cart.repository.CartRepository;
-import com.mega._NY.cart.service.CartService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,7 +29,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthUtils authUtils;
     private final ModelMapper modelMapper;
     private final CartRepository cartRepository;
 
@@ -60,7 +52,7 @@ public class UserService {
 
         User user = modelMapper.map(userDTO, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));       //password는 암호화
-        createRole(user);
+        user.addRole(UserRoles.USER);
 
 
         return userRepository.save(user);
@@ -94,12 +86,7 @@ public class UserService {
         return userDTO;
     }
 
-    public User returnUser(String email) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
 
-        return user;
-    }
 
     public void modify(UserDTO.ResponseDTO userDTO) {
 
@@ -141,10 +128,6 @@ public class UserService {
         return loginUser;
     }
 
-    private User createRole( User user ){
-        user.addRole(UserRoles.USER);
-        return user;
-    }
 
     public User getLoginUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
