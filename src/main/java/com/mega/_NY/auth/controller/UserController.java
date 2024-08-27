@@ -8,6 +8,7 @@ import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.service.CartService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Log4j2
@@ -117,22 +119,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/role")
-    public ResponseEntity<?> roleModify(@RequestBody Map<String, String> request) {
-        String password = request.get("password");
-        log.info("Received password: " + password);
-        if ("123456789".equals(password)) {  // Note: This is still not secure
-            try {
-                userService.roleModify();
-                return ResponseEntity.ok().body("Roles updated successfully");
-            } catch (BusinessLogicException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
-        } else {
-            ResponseDTO responseDTO = ResponseDTO.builder().error("Invalid admin passwordd").build();
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDTO);
-        }
-    }
 
     @PostMapping("/password")
     public ResponseEntity<Boolean> passwordModify(@RequestBody LoginDTO request) {
@@ -172,4 +158,14 @@ public class UserController {
         }
     }
 
+    @GetMapping("/allusers")
+    public ResponseEntity<?> allUsers() {
+        try {
+            List<UserDTO.ResponseDTO> userDTO = userService.getAllUsers();
+            return ResponseEntity.ok(userDTO);
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
 }
