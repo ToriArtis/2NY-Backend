@@ -129,17 +129,6 @@ public class UserService {
         userRepository.save(loginUser);
     }
 
-    public void roleModify() {
-        User loginUser = getLoginUser();
-
-        loginUser.addRole(UserRoles.ADMIN);
-        loginUser.addRole(UserRoles.BOSS);
-        Cart cart = cartRepository.findByUserId(loginUser.getId());
-        if(cart != null){
-            cartRepository.delete(cart);
-        }
-        userRepository.save(loginUser);
-    }
 
     public User deleteUser(){
 

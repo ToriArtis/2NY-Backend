@@ -119,22 +119,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/role")
-    public ResponseEntity<?> roleModify(@RequestBody Map<String, String> request) {
-        String password = request.get("password");
-        log.info("Received password: " + password);
-        if ("123456789".equals(password)) {  // Note: This is still not secure
-            try {
-                userService.roleModify();
-                return ResponseEntity.ok().body("Roles updated successfully");
-            } catch (BusinessLogicException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
-        } else {
-            ResponseDTO responseDTO = ResponseDTO.builder().error("Invalid admin passwordd").build();
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDTO);
-        }
-    }
 
     @PostMapping("/password")
     public ResponseEntity<Boolean> passwordModify(@RequestBody LoginDTO request) {
