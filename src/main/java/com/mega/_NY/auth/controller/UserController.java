@@ -8,6 +8,7 @@ import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.service.CartService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Log4j2
@@ -172,4 +174,14 @@ public class UserController {
         }
     }
 
+    @GetMapping("/allusers")
+    public ResponseEntity<?> allUsers() {
+        try {
+            List<UserDTO.ResponseDTO> userDTO = userService.getAllUsers();
+            return ResponseEntity.ok(userDTO);
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
 }

@@ -19,6 +19,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,6 +36,9 @@ public class UserService {
     private final CartRepository cartRepository;
 
     public User join(UserDTO.ResponseDTO userDTO) throws BusinessLogicException {
+
+
+
         String email = userDTO.getEmail();
         String nickName = userDTO.getNickName();
         String phone = userDTO.getPhone();
@@ -51,13 +57,33 @@ public class UserService {
         }
 
         User user = modelMapper.map(userDTO, User.class);
+        if (userRepository.count() == 0) {
+            user.addRole(UserRoles.USER);
+            user.addRole(UserRoles.BOSS);
+            user.addRole(UserRoles.ADMIN);
+        }else {
+            user.addRole(UserRoles.USER);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));       //password는 암호화
-        user.addRole(UserRoles.USER);
-
-
         return userRepository.save(user);
     }
-    
+
+    public List<UserDTO.ResponseDTO> getAllUsers(){
+        User loginUser = getLoginUser();
+
+        if (!loginUser.getRoleSet().contains(UserRoles.BOSS)) {
+            throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED_USER);
+        }
+        else{
+            List<UserDTO.ResponseDTO> userDTOs = new ArrayList<>();
+            List<User> users = userRepository.findAll();
+            for (User user : users) {
+                userDTOs.add(modelMapper.map(user, UserDTO.ResponseDTO.class));
+            }
+            return userDTOs;
+        }
+    }
+
     // 로그인 로직
     public User getByCredentials(final String email, final String password) {
         // 주어진 이메일을 사용하여 사용자 정보를 데이터베이스에서 조회
@@ -107,6 +133,7 @@ public class UserService {
         User loginUser = getLoginUser();
 
         loginUser.addRole(UserRoles.ADMIN);
+        loginUser.addRole(UserRoles.BOSS);
         Cart cart = cartRepository.findByUserId(loginUser.getId());
         if(cart != null){
             cartRepository.delete(cart);
@@ -156,10 +183,10 @@ public class UserService {
             return false;
         }
     }
+
     public String findEmail(String phone) {
         Optional<User> userOptional = userRepository.findByPhone(phone);
         log.info(userOptional.toString());
-
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             return user.getEmail();
@@ -167,4 +194,5 @@ public class UserService {
             return null;
         }
     }
+
 }
