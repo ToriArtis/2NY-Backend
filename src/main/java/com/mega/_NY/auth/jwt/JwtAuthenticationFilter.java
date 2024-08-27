@@ -4,7 +4,6 @@ import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.repository.UserRepository;
-import com.mega._NY.auth.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,22 +44,34 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
             log.info("Filter is running...");
             // 토큰 검사하기. JWT이므로 인가 서버에 요청 하지 않고도 검증 가능.
             if (accessToken != null && !accessToken.equalsIgnoreCase("null") && StringUtils.hasText(accessToken)) {
-                if(tokenProvider.isTokenExpired(accessToken)&&StringUtils.hasText(refreshToken)){
-                    // Access token is expired, but we have a refresh token
-                    String email = tokenProvider.validateAndGetUserIdFromRefreshToken(refreshToken);
+                if(tokenProvider.isTokenExpired(refreshToken)&&StringUtils.hasText(refreshToken)){
 
-                    log.info(email);
+                    try {
+                        String email = tokenProvider.validateAndGetUserIdFromRefreshToken(refreshToken);
+                        Optional<User> userOptional = userRepository.findByEmail(email);
+                        User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
 
-                    Optional<User> userOptional = userRepository.findByEmail(email);
-                    User user = userOptional.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+                        // 새로운 AccessToken 생성
+                        String newAccessToken = tokenProvider.createAccessToken(user);
+                        response.setHeader("New-Access-Token", newAccessToken);
+                        accessToken = newAccessToken;
 
-                    String newAccessToken = tokenProvider.createAccessToken(user);
-                    response.setHeader("New-Access-Token", newAccessToken);
-                    accessToken = newAccessToken;
+                        // RefreshToken 만료 기간 확인 및 갱신
+                        long refreshTokenRemainingTime = tokenProvider.getTokenRemainingTime(refreshToken, true);
+                        if (refreshTokenRemainingTime < (1000 * 60 * 60 * 24 * 3)) { // 3일 미만
+                            String newRefreshToken = tokenProvider.createRefreshToken(user);
+                            response.setHeader("New-Refresh-Token", newRefreshToken);
+                        }
+                    } catch (Exception e) {
+                        log.error("Failed to refresh token", e);
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid refresh token");
+                        return;
+                    }
                 }
 
                 // userId 가져오기. 위조 된 경우 예외 처리 된다.
                 String userId = tokenProvider.validateAndGetUserId(accessToken);
+
                 log.info("Authenticated user ID : " + userId );
                 // 인증 완료; SecurityContextHolder에 등록해야 인증된 사용자라고 생각한다.
                 AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

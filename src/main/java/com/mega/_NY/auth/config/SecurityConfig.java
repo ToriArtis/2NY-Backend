@@ -63,19 +63,23 @@ public class SecurityConfig {
                 )
                 // HTTP 기본 인증 비활성화
                 .httpBasic(httpBasic -> httpBasic.disable())
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(oAuth2UserService)
-                        )
-                        .successHandler(oAuth2AuthenticationSuccessHandler())
-                )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .userInfoEndpoint(userInfo -> userInfo
+//                                .userService(oAuth2UserService)
+//                        )
+//                        .successHandler(oAuth2AuthenticationSuccessHandler())
+//                )
                 // 세션 관리 설정을 무상태(stateless)로 설정
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 );
 
+
         // JWT 인증 필터를 CORS 필터 이후에 추가
+        // jwtAuthenticationFilter에서 tokenProvider에 의존성을 주입시켜 validate 검사함
         http.addFilterAfter(jwtAuthenticationFilter, CorsFilter.class);
+
+
 
         http.rememberMe(rememberMe ->
                 rememberMe.key("123456789") // 세션에 저장해서 작업할 수 있어야 remember 되기 때문이다.
@@ -93,16 +97,4 @@ public class SecurityConfig {
         return new OAuth2AuthenticationSuccessHandler(tokenProvider, userRepository, passwordEncoder);
     }
 
-    // CORS 필터 Bean 설정
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 }
