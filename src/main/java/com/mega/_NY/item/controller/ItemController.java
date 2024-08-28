@@ -138,7 +138,10 @@ public class ItemController {
     // 상품 목록 조회
     @GetMapping
     public ResponseEntity<Page<ItemDTO>> getItems(Pageable pageable) {
-        Page<ItemDTO> itemDTOPage = itemService.getItems(pageable);
+        Sort sort = Sort.by("createdAt").descending();
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<ItemDTO> itemDTOPage = itemService.getItems(sortedPageable);
         return ResponseEntity.ok(itemDTOPage);
     }
 
