@@ -10,13 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * ChatGPT API
- *
- * @author : lee
- * @fileName : ChatGPTController
- * @since : 12/29/23
- */
 @RestController
 @RequestMapping(value = "/api")
 public class ChatGPTController {

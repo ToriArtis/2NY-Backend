@@ -5,8 +5,6 @@ import com.mega._NY.auth.entity.OAuthAttributes;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.OAuth2Service;
-import com.nimbusds.oauth2.sdk.TokenRequest;
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;

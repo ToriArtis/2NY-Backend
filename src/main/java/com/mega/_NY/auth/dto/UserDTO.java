@@ -1,11 +1,9 @@
 package com.mega._NY.auth.dto;
 
 import com.mega._NY.auth.entity.UserRoles;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 public class UserDTO {

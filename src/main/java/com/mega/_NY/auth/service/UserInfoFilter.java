@@ -2,14 +2,12 @@ package com.mega._NY.auth.service;
 
 import com.mega._NY.auth.config.exception.BusinessLogicException;
 import com.mega._NY.auth.config.exception.ExceptionCode;
-import com.mega._NY.auth.dto.UserDTO;
 import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Component

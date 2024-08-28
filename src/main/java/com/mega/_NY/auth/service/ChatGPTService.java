@@ -17,14 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * ChatGPT Service Implementation
- *
- * Provides methods to interact with OpenAI's ChatGPT models.
- *
- * @author
- * @since 12/29/23
- */
+
 @Log4j2
 @Service
 public class ChatGPTService {
