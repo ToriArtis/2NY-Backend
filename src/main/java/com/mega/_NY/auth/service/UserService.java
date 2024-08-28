@@ -65,6 +65,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // 유저 목록 조회
     public List<UserDTO.ResponseDTO> getAllUsers(){
         User loginUser = getLoginUser();
 
