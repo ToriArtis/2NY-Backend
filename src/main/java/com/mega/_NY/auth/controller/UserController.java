@@ -8,11 +8,9 @@ import com.mega._NY.auth.entity.User;
 import com.mega._NY.auth.jwt.TokenProvider;
 import com.mega._NY.auth.service.UserService;
 import com.mega._NY.cart.service.CartService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -163,6 +161,16 @@ public class UserController {
         try {
             List<UserDTO.ResponseDTO> userDTO = userService.getAllUsers();
             return ResponseEntity.ok(userDTO);
+        } catch (BusinessLogicException e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+    @PostMapping("/setRole")
+    public ResponseEntity<?> setRole(@RequestBody UserDTO.ResponseDTO userDTO) {
+        try {
+            User user = userService.modifyRole(userDTO.getEmail());
+            return ResponseEntity.ok(user);
         } catch (BusinessLogicException e) {
             ResponseDTO responseDTO = ResponseDTO.builder().error("Login failed").build();
             return ResponseEntity.badRequest().body(responseDTO);

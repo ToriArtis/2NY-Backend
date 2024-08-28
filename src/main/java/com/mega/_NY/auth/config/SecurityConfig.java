@@ -36,7 +36,6 @@ public class SecurityConfig {
     @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter; // jwt 필터 의존성 주입
     private final CustomUserDetailsService userDetailsService;
-    private final OAuth2Service oAuth2Service;
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
     private final OAuth2UserService oAuth2UserService;
@@ -63,12 +62,12 @@ public class SecurityConfig {
                 )
                 // HTTP 기본 인증 비활성화
                 .httpBasic(httpBasic -> httpBasic.disable())
-//                .oauth2Login(oauth2 -> oauth2
-//                        .userInfoEndpoint(userInfo -> userInfo
-//                                .userService(oAuth2UserService)
-//                        )
-//                        .successHandler(oAuth2AuthenticationSuccessHandler())
-//                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2UserService)
+                        )
+                        .successHandler(oAuth2AuthenticationSuccessHandler())
+                )
                 // 세션 관리 설정을 무상태(stateless)로 설정
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)

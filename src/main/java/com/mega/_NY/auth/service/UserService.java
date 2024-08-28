@@ -20,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,8 +35,6 @@ public class UserService {
     private final CartRepository cartRepository;
 
     public User join(UserDTO.ResponseDTO userDTO) throws BusinessLogicException {
-
-
 
         String email = userDTO.getEmail();
         String nickName = userDTO.getNickName();
@@ -129,6 +126,17 @@ public class UserService {
         userRepository.save(loginUser);
     }
 
+    public User modifyRole(String email){
+        User loginUser = getLoginUser();
+
+        if (!loginUser.getRoleSet().contains(UserRoles.ADMIN)) {
+            throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED_USER);
+        }else{
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+            user.addRole(UserRoles.ADMIN);
+            return userRepository.save(user);
+        }
+    }
 
     public User deleteUser(){
 
@@ -183,5 +191,5 @@ public class UserService {
             return null;
         }
     }
-
+    
 }

@@ -1,15 +1,12 @@
 package com.mega._NY.auth.entity;
 
 
-import com.mega._NY.cart.entity.Cart;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
