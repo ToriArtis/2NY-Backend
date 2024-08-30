@@ -75,7 +75,13 @@ public class User  implements Principal{
 
     //addRole 역할 추가
     public void addRole(UserRoles role) { this.roleSet.add(role); }
-    public void claerRoles() { this.roleSet.clear(); }
+
+    public void clearRoles() {
+        this.roleSet.clear();
+    }
+    public void removeRole(UserRoles role) {
+        this.roleSet.remove(role);
+    }
 
     public User updateUser(String username, String email, String provider) {
         this.realName = username;

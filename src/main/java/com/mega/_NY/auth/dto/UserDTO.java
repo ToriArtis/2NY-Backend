@@ -13,7 +13,7 @@ public class UserDTO {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static  class RoleModifyRequestDTO {
+    public static class RoleModifyRequestDTO {
         private String password;
     }
 
@@ -22,15 +22,15 @@ public class UserDTO {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static  class ResponseDTO {
-
+    public static class ResponseDTO {
         @NotBlank private String email; // 사용자 이메일
         @NotBlank private String password; // 사용자 비밀번호
         @NotBlank private String address; // 사용자 주소
-        @NotBlank private String detailAddress; // 사용자 주소
+        @NotBlank private String detailAddress; // 사용자 상세 주소
         @NotBlank private String nickName; // 사용자 닉네임
         @NotBlank private String realName; // 사용자의 실제 이름
         @NotBlank private String phone; // 사용자 전화번호
+        private Set<UserRoles> roleSet; // 사용자 역할 집합 추가
     }
 
     @Builder
@@ -38,10 +38,9 @@ public class UserDTO {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static  class LoginDTO{
+    public static class LoginDTO {
         private String accessToken;
         private String refreshToken;
-
         @NotBlank private String email; // 사용자 이메일
         @NotBlank private String nickName; // 사용자 닉네임
         @NotBlank private Set<UserRoles> roleSet;
@@ -51,7 +50,7 @@ public class UserDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class FindDTO{
+    public static class FindDTO {
         private String phone;
     }
 }
