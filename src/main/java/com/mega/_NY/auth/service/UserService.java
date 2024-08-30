@@ -127,14 +127,22 @@ public class UserService {
         userRepository.save(loginUser);
     }
 
-    public User modifyRole(String email){
+    @Transactional
+    public User modifyRole(String email) {
         User loginUser = getLoginUser();
 
         if (!loginUser.getRoleSet().contains(UserRoles.ADMIN)) {
             throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED_USER);
-        }else{
-            User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
-            user.addRole(UserRoles.ADMIN);
+        } else {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+
+            if (user.getRoleSet().contains(UserRoles.ADMIN)) {
+                user.removeRole(UserRoles.ADMIN);
+            } else {
+                user.addRole(UserRoles.ADMIN);
+            }
+
             return userRepository.save(user);
         }
     }
