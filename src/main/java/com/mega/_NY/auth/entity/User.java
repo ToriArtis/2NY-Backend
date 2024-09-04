@@ -90,5 +90,10 @@ public class User  implements Principal{
         return this;
     }
 
+    // roleSet이 null일 경우 새 HashSet을 반환하는 메소드 추가
+    public Set<UserRoles> getRoleSet() {
+        return roleSet == null ? new HashSet<>() : roleSet;
+    }
+
 
 }
