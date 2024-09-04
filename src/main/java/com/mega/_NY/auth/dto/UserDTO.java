@@ -30,7 +30,7 @@ public class UserDTO {
         @NotBlank private String nickName; // 사용자 닉네임
         @NotBlank private String realName; // 사용자의 실제 이름
         @NotBlank private String phone; // 사용자 전화번호
-        //private Set<UserRoles> roleSet; // 사용자 역할 집합 추가
+        private Set<UserRoles> roleSet; // 사용자 역할 집합 추가
     }
 
     @Builder

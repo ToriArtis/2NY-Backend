@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,14 +55,20 @@ public class UserService {
         }
 
         User user = modelMapper.map(userDTO, User.class);
-        if (userRepository.count() == 0) {
-            user.addRole(UserRoles.USER);
-            user.addRole(UserRoles.BOSS);
-            user.addRole(UserRoles.ADMIN);
-        }else {
-            user.addRole(UserRoles.USER);
+
+        // roleSet 초기화 (null이거나 비어있을 경우)
+        if (user.getRoleSet() == null || user.getRoleSet().isEmpty()) {
+            user.setRoleSet(new HashSet<>());
+            if (userRepository.count() == 0) {
+                user.addRole(UserRoles.USER);
+                user.addRole(UserRoles.BOSS);
+                user.addRole(UserRoles.ADMIN);
+            } else {
+                user.addRole(UserRoles.USER);
+            }
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));       //password는 암호화
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -175,6 +182,14 @@ public class UserService {
         String name = authentication.getName();
         Optional<User> user = userRepository.findByEmail(name);
         return user.get().getId();
+    }
+
+    public UserDTO.ResponseDTO getUserWithRoles(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+        UserDTO.ResponseDTO userDTO = modelMapper.map(user, UserDTO.ResponseDTO.class);
+        userDTO.setRoleSet(user.getRoleSet());
+        return userDTO;
     }
 
     public boolean newpassword(LoginDTO request) {
