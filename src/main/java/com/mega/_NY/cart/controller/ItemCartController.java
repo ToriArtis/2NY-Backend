@@ -42,12 +42,11 @@ public class ItemCartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Long userId = userService.getLoginUser().getId();
-        Cart cart = cartService.findVerifiedCart(userId);   // 현재 사용자의 Cart를 가져옵니다.
+        Cart cart = cartService.findMyCart(userId);   // findVerifiedCart 대신 findMyCart 사용
         ItemCartDTO createdItemCart = itemCartService.addItemCart(itemCartDTO, itemId, cart);
         cartService.refreshCart(cart.getCartId());
         return new ResponseEntity<>(createdItemCart, HttpStatus.CREATED);
     }
-
     // 장바구니 상품 수량 변경
     @PutMapping("/itemcarts/{itemcart-id}")
     public ResponseEntity<ItemCartDTO> upDownItemCart(@PathVariable("itemcart-id") @Positive long itemCartId,
