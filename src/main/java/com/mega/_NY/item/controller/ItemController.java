@@ -98,16 +98,8 @@ public class ItemController {
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
             Resource file = itemService.loadImages(filename);
-            String contentType = "application/octet-stream";
-            if (filename.toLowerCase().endsWith(".png")) {
-                contentType = "image/png";
-            } else if (filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg")) {
-                contentType = "image/jpeg";
-            }
-
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                     .body(file);
         } catch (IOException e) {
             return ResponseEntity.notFound().build();

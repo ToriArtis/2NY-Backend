@@ -26,14 +26,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .maxAge(MAX_AGE_SECS);
     }
 
-    // application.properties에서 설정한 경로를 주입받음
-    @Value("${app.image.upload-dir}")
-    private String uploadDir;
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // '/images/**' URL 패턴에 대해 실제 파일 시스템의 경로를 매핑
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + uploadDir + "/");
-    }
 }

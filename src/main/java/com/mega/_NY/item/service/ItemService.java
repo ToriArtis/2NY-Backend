@@ -1,5 +1,7 @@
 package com.mega._NY.item.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.*;
 import com.mega._NY.item.dto.ItemDTO;
 import com.mega._NY.item.dto.ItemTest;
 import com.mega._NY.item.dto.ItemWithReviewsDTO;
@@ -11,6 +13,9 @@ import com.mega._NY.review.dto.ReviewDTO;
 import com.mega._NY.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
@@ -30,6 +35,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,18 +46,21 @@ public class ItemService {
     private final ItemMapper itemMapper;
     private final ReviewService reviewService;
     private final SearchRepository searchRepository;
-    private final Path fileStorageLocation;
+    private final AmazonS3 amazonS3Client;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
 
     public ItemService(ItemRepository itemRepository,
                        ItemMapper itemMapper,
                        ReviewService reviewService,
                        SearchRepository searchRepository,
-                       Path fileStorageLocation) {
+                       AmazonS3 amazonS3Client) {
         this.itemRepository = itemRepository;
         this.itemMapper = itemMapper;
         this.reviewService = reviewService;
         this.searchRepository = searchRepository;
-        this.fileStorageLocation = fileStorageLocation;
+        this.amazonS3Client = amazonS3Client;
     }
 
     // 상품 추가
@@ -75,6 +84,7 @@ public class ItemService {
         return itemMapper.toDTO(savedItem);
     }
 
+
     public ItemTest createItem(ItemTest itemDTO) throws Exception {
         Item item = Item.builder()
                 .title(itemDTO.getTitle())
@@ -87,35 +97,30 @@ public class ItemService {
         return itemDTO;
     }
 
-    private List<String> uploadImages(List<MultipartFile> files) throws Exception {
+    private List<String> uploadImages(List<MultipartFile> files) throws IOException {
         List<String> uploadedFiles = new ArrayList<>();
         for (MultipartFile file : files) {
-            // 파일 이름에서 경로 구분자 등을 제거
-            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-            // 저장할 파일의 전체 경로 생성
-            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            // 파일을 지정된 위치에 복사 (이미 존재하면 덮어쓰기)
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            uploadedFiles.add(fileName);
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(file.getContentType());
+            metadata.setContentLength(file.getSize());
+
+            amazonS3Client.putObject(new PutObjectRequest(bucketName, "image/" + fileName, file.getInputStream(), metadata));
+            uploadedFiles.add(fileName);  // S3 URL 대신 백엔드 URL 반환
         }
         return uploadedFiles;
     }
 
     public Resource loadImages(String filename) throws IOException {
         try {
-            // 요청된 파일의 전체 경로 생성
-            Path filePath = this.fileStorageLocation.resolve(filename).normalize();
-            // 파일을 리소스로 변환
-            Resource resource = new UrlResource(filePath.toUri());
-            if (resource.exists()) {
-                return resource;
-            } else {
-                throw new FileNotFoundException("File not found " + filename);
-            }
-        } catch (MalformedURLException ex) {
-            throw new FileNotFoundException("File not found " + filename);
+            S3Object s3Object = amazonS3Client.getObject(bucketName, "image/" + filename);
+            S3ObjectInputStream inputStream = s3Object.getObjectContent();
+            return new InputStreamResource(inputStream);
+        } catch (AmazonS3Exception e) {
+            throw new IOException("File not found : " + filename, e);
         }
     }
+
 
     // 상품 찾기
     @Transactional(readOnly = true)
