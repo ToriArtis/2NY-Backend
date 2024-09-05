@@ -18,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -28,11 +27,25 @@ public class CartService {
     private final CartMapper cartMapper;
     private final ItemCartService itemCartService;
     private final ItemCartRepository itemCartRepository;
+    private final UserService userService;
+
+    // 장바구니 찾기 또는 생성
+    public Cart findOrCreateCart(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId);
+        if (cart == null) {
+            User user = userService.getLoginUser();  // 현재 로그인한 사용자 정보 가져오기
+            cart = createCart(user);
+        }
+        return cart;
+    }
 
     // 장바구니 생성
     public Cart createCart(User user) {
         Cart cart = new Cart();
         cart.setUser(user);
+        cart.setTotalPrice(0);
+        cart.setTotalDiscountPrice(0);
+        cart.setTotalItems(0);
         return cartRepository.save(cart);
     }
 
@@ -48,11 +61,7 @@ public class CartService {
 
     // 현재 사용자의 장바구니 찾기
     public Cart findMyCart(Long userId) {
-        Cart cart = cartRepository.findByUserId(userId);
-        if (cart == null) {
-            throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
-        }
-        return cart;
+        return findOrCreateCart(userId);
     }
 
     // 현재 사용자의 장바구니 DTO 반환
@@ -73,18 +82,13 @@ public class CartService {
     // 장바구니 비우기
     public void clearCart(User user) {
         Cart cart = findMyCart(user.getId());
-        if (cart != null) {
-            // ItemCart 엔티티들을 모두 제거
-            itemCartService.removeAllItemCartsFromCart(cart);
+        // ItemCart 엔티티들을 모두 제거
+        itemCartService.removeAllItemCartsFromCart(cart);
 
-            // Cart 엔티티 업데이트
-            cart.setTotalPrice(0);
-            cart.setTotalDiscountPrice(0);
-            cart.setTotalItems(0);
-            cartRepository.save(cart);
-        } else {
-            throw new BusinessLogicException(ExceptionCode.CART_NOT_FOUND);
-        }
+        // Cart 엔티티 업데이트
+        cart.setTotalPrice(0);
+        cart.setTotalDiscountPrice(0);
+        cart.setTotalItems(0);
+        cartRepository.save(cart);
     }
-
 }
