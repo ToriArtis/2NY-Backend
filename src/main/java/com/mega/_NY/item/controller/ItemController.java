@@ -165,10 +165,16 @@ public class ItemController {
         if (!isAdmin()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        itemService.deleteItem(itemId);
-        return ResponseEntity.noContent().build();
+        try {
+            itemService.deleteItem(itemId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("상품 삭제 중 오류 발생: " + e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-
     // 카테고리별 상품 조회
     @GetMapping("/category/{category}")
     public ResponseEntity<Page<ItemDTO>> getItemsByCategory(@PathVariable ItemCategory category, Pageable pageable) {
