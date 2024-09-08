@@ -1,5 +1,6 @@
 package com.mega._NY.item.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.mega._NY.item.dto.ItemDTO;
@@ -190,9 +191,32 @@ public class ItemService {
     // 상품 삭제
     @Transactional
     public void deleteItem(Long itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다. itemId=" + itemId));
-        itemRepository.delete(item);
+        try {
+            Item item = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다. itemId=" + itemId));
+
+            // S3에서 이미지 삭제
+            deleteImagesFromS3(item.getThumbnail());
+            deleteImagesFromS3(item.getDescriptionImage());
+
+            itemRepository.delete(item);
+        } catch (Exception e) {
+            log.error("상품 삭제 중 오류 발생: " + e.getMessage(), e);
+            throw new RuntimeException("상품 삭제 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    private void deleteImagesFromS3(List<String> imageUrls) {
+        if (imageUrls != null) {
+            for (String imageUrl : imageUrls) {
+                try {
+                    amazonS3Client.deleteObject(new DeleteObjectRequest(bucketName, "image/" + imageUrl));
+                } catch (AmazonServiceException e) {
+                    log.warn("S3에서 이미지 삭제 중 오류 발생: " + e.getMessage());
+                    // 이미지가 이미 없는 경우 무시하고 계속 진행
+                }
+            }
+        }
     }
 
     // ItemColor enum을 String으로 변환하는 유틸리티 메서드 (필요한 경우)
