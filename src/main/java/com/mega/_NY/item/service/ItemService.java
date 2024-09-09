@@ -190,7 +190,6 @@ public class ItemService {
 
     // 상품 삭제
     @Transactional
-    @Transactional
 public void deleteItem(Long itemId) {
     try {
         Item item = itemRepository.findById(itemId)
